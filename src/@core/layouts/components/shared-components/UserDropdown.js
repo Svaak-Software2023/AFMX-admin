@@ -39,8 +39,6 @@ const UserDropdown = () => {
 
   const [admin, setAdmin] = useState('')
 
-  console.log('Admin data:', admin)
-
   // ** Hooks
   const router = useRouter()
 
@@ -70,7 +68,7 @@ const UserDropdown = () => {
   }
 
   useEffect(() => {
-    const storedData = localStorage.getItem('adminData')
+    const storedData = sessionStorage.getItem('adminData')
 
     if (storedData) {
       const parsedData = JSON.parse(storedData)

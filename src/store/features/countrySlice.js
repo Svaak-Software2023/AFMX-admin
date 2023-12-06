@@ -9,17 +9,6 @@ const initialState = {
   status: 'idle'
 }
 
-// Create a New Country
-export const CreateCountry = createAsyncThunk('form/postCountryData', async (data, { rejectWithValue }) => {
-  try {
-    const newCoutry = await postCounrtyData(data)
-
-    return newCoutry
-  } catch (error) {
-    return rejectWithValue(error.message)
-  }
-})
-
 //Get Country Details
 export const getCountry = createAsyncThunk('get/getCountryData', async () => {
   try {
@@ -31,12 +20,24 @@ export const getCountry = createAsyncThunk('get/getCountryData', async () => {
   }
 })
 
+// Create a New Country
+export const CreateCountry = createAsyncThunk('form/postCountryData', async (data, { rejectWithValue }) => {
+  try {
+    const newCoutry = await postCounrtyData(data)
+    const country = await getCountryData()
+
+    return country.getResponse
+  } catch (error) {
+    return rejectWithValue(error.message)
+  }
+})
+
 //Update country
 export const updateCountry = createAsyncThunk('update/updateCountries', async ({ id, data }, { rejectWithValue }) => {
   try {
     const country = await updateCountryData(id, data)
 
-    return country
+    return country.getUpdateResponse
   } catch (error) {
     return rejectWithValue(error.message)
   }

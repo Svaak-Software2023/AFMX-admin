@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
-import { getAllBannerData, updateBannerData } from '../ApiServices/bannerService'
+import { ChangeAdvertiseData, getAllAdvertiseData, updateAdvertiseData } from '../ApiServices/advertiseService'
 
 const initialState = {
   data: [],
@@ -10,26 +9,47 @@ const initialState = {
 
 export const fetchAdsdata = createAsyncThunk('data/fetchadsdata', async () => {
   try {
-    const banner = await getAllBannerData()
+    const advertise = await getAllAdvertiseData()
 
-    return banner.getResponse
+    return advertise.getResponse
   } catch (error) {
     throw error
   }
 })
 
-//Update Banner
-export const updateBanner = createAsyncThunk('data/updateBannerData', async ({ id, data }, { rejectWithValue }) => {
-  try {
-    const country = await updateBannerData(id, data)
+//Update advertise
+export const updateAdvertise = createAsyncThunk(
+  'data/updateadvertiseData',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await updateAdvertiseData(id, data)
+      const advertise = await getAllAdvertiseData()
 
-    return country
-  } catch (error) {
-    return rejectWithValue(error.message)
+      return advertise.getResponse
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
   }
-})
+)
 
-export const bannerSlice = createSlice({
+//Change Advertise Status
+export const ChangeAdvertiseStatus = createAsyncThunk(
+  'data/changeAdvertiseData',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      console.log(`id: ${id}, data: ${JSON.stringify(data)}`)
+      const response = await ChangeAdvertiseData(id, data)
+
+      const advertise = await getAllAdvertiseData()
+
+      return advertise.getResponse
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+
+export const advertiseSlice = createSlice({
   name: 'ads',
   initialState,
   reducers: {},
@@ -46,9 +66,31 @@ export const bannerSlice = createSlice({
         state.loading = false
         state.error = action.error.message
       })
+      .addCase(updateAdvertise.pending, state => {
+        state.loading = true
+      })
+      .addCase(updateAdvertise.fulfilled, (state, action) => {
+        state.loading = false
+        state.data = action.payload
+      })
+      .addCase(updateAdvertise.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      .addCase(ChangeAdvertiseStatus.pending, state => {
+        state.loading = true
+      })
+      .addCase(ChangeAdvertiseStatus.fulfilled, (state, action) => {
+        state.loading = false
+        state.data = action.payload
+      })
+      .addCase(ChangeAdvertiseStatus.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
   }
 })
 
-// export const { addbanner } = bannerSlice.actions
+// export const { addadvertise } = advertiseSlice.actions
 
-export default bannerSlice.reducer
+export default advertiseSlice.reducer

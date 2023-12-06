@@ -14,7 +14,9 @@ import InputLabel from '@mui/material/InputLabel'
 import Grid from '@mui/material/Grid'
 import FormControl from '@mui/material/FormControl'
 import Button from '@mui/material/Button'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchAdsdata, updateAdvertise } from 'src/store/features/advertiseSlice'
+import { useEffect } from 'react'
 
 const Form = styled('form')(({ theme }) => ({
   maxWidth: '100%',
@@ -50,10 +52,39 @@ const ResetButtonStyled = styled(Button)(({ theme }) => ({
 }))
 
 const AdsForm = props => {
-  const { singleAds } = props
+  const { singleAds, handleClose } = props
   const clientData = useSelector(state => state.clientData)
+  const dispatch = useDispatch()
 
-  const [formData, setFormData] = useState({})
+  const {
+    advertiseImage,
+    advertisePage,
+    advertiseLocation,
+    businessName,
+    businessURL,
+    advertiseImageAltText,
+    phoneNumber,
+    startDate,
+    endDate,
+    clientId,
+    description,
+    isActive
+  } = singleAds
+
+  const [editedAds, setEditedAds] = useState({
+    advertiseImage: advertiseImage,
+    advertisePage: advertisePage,
+    advertiseLocation: advertiseLocation,
+    businessName: businessName,
+    businessURL: businessURL,
+    advertiseImageAltText: advertiseImageAltText,
+    phoneNumber: phoneNumber,
+    startDate: startDate,
+    endDate: endDate,
+    clientId: clientId,
+    description: description,
+    isActive: isActive
+  })
 
   const findUserName = id => {
     const user = clientData.data.find(item => item.clientId == id)
@@ -65,23 +96,44 @@ const AdsForm = props => {
     }
   }
 
+  const handleChange = (field, value) => {
+    setEditedAds(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleUpdate = e => {
+    e.preventDefault()
+    dispatch(updateAdvertise({ id: singleAds.advertiseId, data: editedAds }))
+    handleClose()
+  }
+
+  useEffect(() => {
+    dispatch(fetchAdsdata())
+  }, [dispatch])
+
   return (
     <>
       <Card>
-        <CardHeader title='Advertisement Form' titleTypographyProps={{ variant: 'h6' }} />
+        <CardHeader title='Update Advertisement' titleTypographyProps={{ variant: 'h6' }} />
         <CardContent>
           <FormControl fullWidth>
-            <Form onSubmit={e => e.preventDefault()}>
+            <Form onSubmit={handleUpdate}>
               <ImageList sx={{ width: 500, height: 200 }} cols={3} rowHeight={164}>
                 <ImageListItem>
-                  <img src={singleAds.bannerImage} alt={singleAds.bannerImageAltText} loading='lazy' />
+                  <img src={editedAds.advertiseImage} alt={editedAds.advertiseImageAltText} loading='lazy' />
                 </ImageListItem>
               </ImageList>
               <Grid container spacing={7}>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
                     <InputLabel>Page</InputLabel>
-                    <Select label='Page' defaultValue='Select Page' onChange={e => setPage(e.target.value)}>
+                    <Select
+                      label='Page'
+                      defaultValue={editedAds.advertisePage?.toUpperCase()}
+                      onChange={e => handleChange('advertisePage', e.target.value)}
+                    >
                       <MenuItem value='Home '>Home Page</MenuItem>
                       <MenuItem value='Service '>Service Page</MenuItem>
                       <MenuItem value='Department '>Department Page</MenuItem>
@@ -93,7 +145,11 @@ const AdsForm = props => {
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
                     <InputLabel>Position</InputLabel>
-                    <Select label='Position' defaultValue='Select Position' onChange={e => setPosition(e.target.value)}>
+                    <Select
+                      label='Position'
+                      defaultValue={editedAds.advertiseLocation?.toUpperCase()}
+                      onChange={e => handleChange('advertiseLocation', e.target.value)}
+                    >
                       <MenuItem value='top'>Top</MenuItem>
                       <MenuItem value='right'>Right</MenuItem>
                       <MenuItem value='bottom'>Bottom</MenuItem>
@@ -107,7 +163,8 @@ const AdsForm = props => {
                     fullWidth
                     label='Business Name'
                     placeholder='Enter Business Name'
-                    value={singleAds.businessName}
+                    value={editedAds.businessName}
+                    onChange={e => handleChange('businessName', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -115,40 +172,56 @@ const AdsForm = props => {
                     fullWidth
                     label='Business URL'
                     placeholder='Enter Business URL'
-                    value={singleAds.businessURL}
+                    value={editedAds.businessURL}
+                    onChange={e => handleChange('businessURL', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label='Country Name'
+                    label='Advertise Name'
                     placeholder='Enter Country Name'
-                    value={singleAds.countryName}
+                    value={editedAds.advertiseImageAltText}
+                    onChange={e => handleChange('advertiseImageAltText', e.target.value)}
                   />
                 </Grid>
                 {/* <Grid item xs={12} sm={6}>
                     <TextField fullWidth label='Country code' placeholder='Enter Country code' />
                   </Grid> */}
                 <Grid item xs={12} sm={6}>
-                  <TextField fullWidth label='Phone No.' placeholder='Enter Phone No.' value={singleAds.phoneNumber} />
+                  <TextField
+                    fullWidth
+                    label='Phone No.'
+                    placeholder='Enter Phone No.'
+                    value={editedAds.phoneNumber}
+                    disabled
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     type='date'
                     label='Select Start Data'
-                    value={singleAds.startDate.split('T')[0]}
+                    value={editedAds.startDate?.split('T')[0]}
+                    onChange={e => handleChange('startDate', e.target.value)}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField fullWidth type='date' label='Select End Date' value={singleAds.endDate.split('T')[0]} />
+                  <TextField
+                    fullWidth
+                    type='date'
+                    label='Select End Date'
+                    value={editedAds.endDate?.split('T')[0]}
+                    onChange={e => handleChange('endDate', e.target.value)}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     label='Client Name'
                     placeholder='Client Name'
-                    value={findUserName(singleAds.clientId)}
+                    value={findUserName(editedAds.clientId)}
+                    disabled
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -159,23 +232,28 @@ const AdsForm = props => {
                     label='Description'
                     placeholder='Description'
                     sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-                    value={singleAds.description}
+                    value={editedAds.description}
+                    onChange={e => handleChange('description', e.target.value)}
                   />
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
                     <InputLabel>Status</InputLabel>
-                    <Select label='Status' defaultValue={singleAds.isActive === true ? 'active' : 'inactive'}>
-                      <MenuItem value='active'>Active</MenuItem>
+                    <Select
+                      label='Status'
+                      defaultValue={editedAds.isActive}
+                      onChange={e => handleChange('isActive', e.target.value)}
+                    >
+                      <MenuItem value={true}>Active</MenuItem>
 
-                      <MenuItem value='inactive'>Inactive</MenuItem>
+                      <MenuItem value={false}>Inactive</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Button variant='contained' sx={{ marginRight: 3.5 }}>
+                  <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
                     Save Changes
                   </Button>
                 </Grid>

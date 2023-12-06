@@ -21,6 +21,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import MuiCard from '@mui/material/Card'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel from '@mui/material/FormControlLabel'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // ** Icons Imports
 
@@ -35,7 +36,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { adminSignIn } from 'src/store/features/adminSlice'
 
 // ** Styled Components
@@ -58,6 +59,10 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
 
 const LoginPage = () => {
   const dispatch = useDispatch()
+  const adminData = useSelector(state => state.adminData)
+
+  console.log(adminData)
+  const { loading, status, error } = adminData
 
   // ** State
   const [values, setValues] = useState({
@@ -99,7 +104,7 @@ const LoginPage = () => {
 
   const handleSubmit = e => {
     e.preventDefault()
-    dispatch(adminSignIn(formData))
+    dispatch(adminSignIn({ formData, router }))
     router.push('/')
   }
 
@@ -227,9 +232,9 @@ const LoginPage = () => {
               </Link>
             </Box>
             <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} type='submit'>
-              Login
+              {loading ? <CircularProgress /> : 'Login'}
             </Button>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {/* <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
               <Typography variant='body2' sx={{ marginRight: 2 }}>
                 New on our platform?
               </Typography>
@@ -238,8 +243,8 @@ const LoginPage = () => {
                   <LinkStyled>Create an account</LinkStyled>
                 </Link>
               </Typography>
-            </Box>
-            <Divider sx={{ my: 5 }}>or</Divider>
+            </Box> */}
+            {/* <Divider sx={{ my: 5 }}>or</Divider> */}
             {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Link href='/' passHref>
                 <IconButton component='a' onClick={e => e.preventDefault()}>

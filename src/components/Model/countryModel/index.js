@@ -10,7 +10,7 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { updateCountry } from 'src/store/features/countrySlice'
 import { getCountry } from 'src/store/features/countrySlice'
 import { useRouter } from 'next/router'
@@ -25,8 +25,11 @@ const Form = styled('form')(({ theme }) => ({
 }))
 
 const CountryModel = props => {
-  const { singleCountry, handleClose } = props
+  const { handleClose, getid } = props
   const dispatch = useDispatch()
+  const countryData = useSelector(state => state.countryData.data)
+
+  const singleCountry = countryData?.find(i => i.countryId === getid)
 
   const countryId = singleCountry.countryId
 
@@ -45,12 +48,13 @@ const CountryModel = props => {
     }))
   }
 
-  const handleUpdate = async e => {
+  const handleUpdate = e => {
     e.preventDefault()
     try {
-      await dispatch(updateCountry({ id: countryId, data: editedCountry }))
+      dispatch(updateCountry({ id: countryId, data: editedCountry }))
       handleClose()
-      await dispatch(getCountry())
+
+      dispatch(getCountry())
     } catch (error) {
       throw error
     }

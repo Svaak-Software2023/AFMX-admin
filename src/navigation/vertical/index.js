@@ -13,6 +13,8 @@ import CampaignIcon from '@mui/icons-material/Campaign'
 import PublicIcon from '@mui/icons-material/Public'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import LocationCityIcon from '@mui/icons-material/LocationCity'
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices'
+import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService'
 
 const navigation = () => {
   return [
@@ -26,6 +28,48 @@ const navigation = () => {
       icon: AccountCogOutline,
       path: '/account-settings'
     },
+
+    {
+      sectionTitle: 'Advertise with us'
+    },
+    {
+      title: 'Advertisement',
+      icon: CampaignIcon,
+      path: '/advertisement'
+    },
+
+    {
+      sectionTitle: 'AFMX Regions'
+    },
+    {
+      title: 'Country',
+      icon: PublicIcon,
+      path: '/country'
+    },
+    {
+      title: 'State',
+      icon: ApartmentIcon,
+      path: '/state'
+    },
+    {
+      title: 'City',
+      icon: LocationCityIcon,
+      path: '/city'
+    },
+    {
+      sectionTitle: 'Our Service Departments'
+    },
+    {
+      title: 'Service Department',
+      icon: HomeRepairServiceIcon,
+      path: '/service-department'
+    },
+    {
+      title: 'Services',
+      icon: MiscellaneousServicesIcon,
+      path: '/services'
+    },
+
     {
       sectionTitle: 'Pages'
     },
@@ -47,38 +91,6 @@ const navigation = () => {
       path: '/pages/error',
       openInNewTab: true
     },
-    {
-      sectionTitle: 'Advertise with us'
-    },
-    {
-      title: 'Advertisement',
-      icon: CampaignIcon,
-      path: '/advertisement'
-    },
-    {
-      title: 'Join Afmx',
-      icon: CampaignIcon,
-      path: '/JoinAFMX'
-    },
-    {
-      sectionTitle: 'AFMX Regions'
-    },
-    {
-      title: 'Country',
-      icon: PublicIcon,
-      path: '/country'
-    },
-    {
-      title: 'State',
-      icon: ApartmentIcon,
-      path: '/state'
-    },
-    {
-      title: 'City',
-      icon: LocationCityIcon,
-      path: '/city'
-    },
-
     {
       sectionTitle: 'User Interface'
     },

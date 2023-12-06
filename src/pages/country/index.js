@@ -33,6 +33,8 @@ import DataTable from 'react-data-table-component'
 import Magnify from 'mdi-material-ui/Magnify'
 import InputAdornment from '@mui/material/InputAdornment'
 import CountryModel from 'src/components/Model/countryModel'
+import { SiMicrosoftexcel } from 'react-icons/si'
+import * as XLSX from 'xlsx'
 
 // table funtion
 const Active = styled('p')(() => ({
@@ -153,10 +155,10 @@ const FormLayoutsSeparator = () => {
     }
   }
 
-  const handleSubmit = async e => {
+  const handleSubmit = e => {
     e.preventDefault()
     try {
-      await dispatch(CreateCountry(formData))
+      dispatch(CreateCountry(formData))
       setFormData({
         countryName: '',
         countryShortName: '',
@@ -164,14 +166,19 @@ const FormLayoutsSeparator = () => {
         isActive: true
       })
       showSuccessMessage('Form submitted successfully')
-      await dispatch(getCountry())
+      dispatch(getCountry())
     } catch (error) {
       console.error('Error While Submitting Form', error)
     }
   }
 
+  const singleCountry = countryData?.find(i => i.countryId === getid)
   useEffect(() => {
-    const result = countryData.filter(item => {
+    dispatch(getCountry())
+  }, [dispatch])
+
+  useEffect(() => {
+    const result = countryData?.filter(item => {
       const country = item.countryName.toLowerCase().includes(search.toLowerCase())
       const countryShortName = item.countryShortName.toLowerCase().includes(search.toLowerCase())
       const countryPhoneCode = item.countryPhoneCode.toLowerCase().includes(search.toLowerCase())
@@ -181,20 +188,21 @@ const FormLayoutsSeparator = () => {
     setFilter(result)
   }, [search, countryData])
 
-  const singleCountry = countryData?.find(i => i.countryId === getid)
-
-  useEffect(() => {
-    dispatch(getCountry())
-  }, [dispatch])
-
   const handleDelete = async id => {
     try {
       const data = await countryData.find(i => i.countryId === id)
-      await dispatch(updateCountry({ id: id, data: { ...data, isActive: false } }))
-      await dispatch(getCountry())
+      dispatch(updateCountry({ id: id, data: { ...data, isActive: false } }))
+      dispatch(getCountry())
     } catch (error) {
       throw error
     }
+  }
+
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1')
+    XLSX.writeFile(wb, 'Country_data.xlsx')
   }
 
   // const singleCountry = countryData && Array.isArray(countryData) ? countryData.find(i => i.countryId === getid) : null
@@ -298,6 +306,15 @@ const FormLayoutsSeparator = () => {
                     onChange={e => setSearch(e.target.value)}
                   />
                 </Box>
+                <Button
+                  variant='contained'
+                  size='small'
+                  onClick={exportToExcel}
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  Export to Excel &nbsp;
+                  <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
+                </Button>
               </Box>
             }
             subHeaderAlign='right'
@@ -312,9 +329,7 @@ const FormLayoutsSeparator = () => {
         aria-labelledby='parent-modal-title'
         aria-describedby='parent-modal-description'
       >
-        <Box sx={{ ...style }}>
-          <CountryModel singleCountry={singleCountry} handleClose={handleClose} />
-        </Box>
+        <Box sx={{ ...style }}>{<CountryModel getid={getid} handleClose={handleClose} />}</Box>
       </Modal>
 
       <Snackbar

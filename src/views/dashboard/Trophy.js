@@ -4,6 +4,9 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import { styled, useTheme } from '@mui/material/styles'
+import { useSelector } from 'react-redux'
+import { useState } from 'react'
+import { useEffect } from 'react'
 
 // Styled component for the triangle shaped background image
 const TriangleImg = styled('img')({
@@ -23,13 +26,23 @@ const TrophyImg = styled('img')({
 
 const Trophy = () => {
   // ** Hook
+  const [admin, setAdmin] = useState('')
   const theme = useTheme()
   const imageSrc = theme.palette.mode === 'light' ? 'triangle-light.png' : 'triangle-dark.png'
+
+  useEffect(() => {
+    const storedData = sessionStorage.getItem('adminData')
+
+    if (storedData) {
+      const parsedData = JSON.parse(storedData)
+      setAdmin(parsedData)
+    }
+  }, [])
 
   return (
     <Card sx={{ position: 'relative' }}>
       <CardContent>
-        <Typography variant='h6'>Congratulations John! 🥳</Typography>
+        <Typography variant='h6'>Welcome {admin.adminName}! 🥳</Typography>
         <Typography variant='body2' sx={{ letterSpacing: '0.25px' }}>
           Best seller of the month
         </Typography>

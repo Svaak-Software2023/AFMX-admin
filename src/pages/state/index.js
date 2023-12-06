@@ -1,5 +1,5 @@
 // ** React Imports
-import { forwardRef, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 
 // ** MUI Imports
@@ -32,6 +32,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { createState, getState, updateState } from 'src/store/features/stateSlice'
 import { getCountry } from 'src/store/features/countrySlice'
 import StateModel from 'src/components/Model/stateModel'
+import { SiMicrosoftexcel } from 'react-icons/si'
+import * as XLSX from 'xlsx'
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -193,6 +195,13 @@ const FormLayoutsSeparator = () => {
     }
   }
 
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1')
+    XLSX.writeFile(wb, 'State_data.xlsx')
+  }
+
   return (
     <>
       {/* Form */}
@@ -285,6 +294,15 @@ const FormLayoutsSeparator = () => {
                     onChange={e => setSearch(e.target.value)}
                   />
                 </Box>
+                <Button
+                  variant='contained'
+                  size='small'
+                  onClick={exportToExcel}
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  Export to Excel &nbsp;
+                  <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
+                </Button>
               </Box>
             }
             subHeaderAlign='right'

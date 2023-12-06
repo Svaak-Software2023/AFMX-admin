@@ -8,10 +8,12 @@ import { styled } from '@mui/material/styles'
 import TableRow from '@mui/material/TableRow'
 import Modal from '@mui/material/Modal'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 
-import { StyledUpdateButton } from 'src/views/icons'
+import { StyledDeleteButton, StyledUpdateButton } from 'src/views/icons'
 
 import 'react-datepicker/dist/react-datepicker.css'
+import * as XLSX from 'xlsx'
 
 // switch button
 
@@ -20,15 +22,18 @@ import TextField from '@mui/material/TextField'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
-import { useEffect, useMemo, useState } from 'react'
-import AdsForm from 'src/components/advertisement'
+import { useEffect, useState } from 'react'
+import AdsForm from 'src/components/Model/advertisement'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchAdsdata } from 'src/store/features/advertiseSlice'
+import { ChangeAdvertiseStatus, fetchAdsdata } from 'src/store/features/advertiseSlice'
 import { fetchClientData } from 'src/store/features/clientSlice'
 
 import Magnify from 'mdi-material-ui/Magnify'
 import InputAdornment from '@mui/material/InputAdornment'
+import { SiMicrosoftexcel } from 'react-icons/si'
+
+// import IosShareIcon from '@mui/icons-material/IosShare'
 
 // table
 
@@ -61,10 +66,10 @@ const InActive = styled('p')(() => ({
   color: 'red'
 }))
 
-const Button = styled('button')(() => ({
-  padding: '10px',
-  backgroundColor: 'blue'
-}))
+// const Button = styled('button')(() => ({
+//   padding: '10px',
+//   backgroundColor: 'blue'
+// }))
 
 const style = {
   position: 'absolute',
@@ -84,11 +89,12 @@ const Advertisement = () => {
   // ** State
 
   const dispatch = useDispatch()
-  const advertiseData = useSelector(state => state.advertiseData)
-  const clientData = useSelector(state => state.clientData)
-  console.log(advertiseData)
 
-  const { data, loading, error } = advertiseData
+  const data = useSelector(state => state.advertiseData.data)
+
+  const clientData = useSelector(state => state.clientData)
+
+  // const { data, loading, error } = advertiseData
 
   const [getid, setGetId] = useState('')
   const [open, setOpen] = useState(false)
@@ -99,6 +105,7 @@ const Advertisement = () => {
     setGetId(id)
     setOpen(true)
   }
+  const singleAds = data && data?.find(i => i.advertiseId === getid)
 
   const handleClose = () => setOpen(false)
 
@@ -114,13 +121,19 @@ const Advertisement = () => {
     }
   }
 
-  const Export = ({ onExport }) => <Button onClick={e => onExport(e.target.value)}>Export</Button>
-
   const columns = [
     {
       name: 'Sr.No',
-      selector: row => row.bannerId,
+      selector: row => row.advertiseId,
       sortable: true
+    },
+    {
+      name: 'Client Name',
+      selector: row => findUserName(row.clientId)
+    },
+    {
+      name: 'Phone No.',
+      selector: row => row.phoneNumber
     },
     {
       name: 'Business Name',
@@ -131,13 +144,12 @@ const Advertisement = () => {
       selector: row => row.businessURL
     },
     {
-      name: 'Country',
-      selector: row => row.countryName,
-      sortable: true
+      name: 'Page',
+      selector: row => row.advertisePage
     },
     {
-      name: 'Phone No.',
-      selector: row => row.phoneNumber
+      name: 'Location',
+      selector: row => row.advertiseLocation
     },
     {
       name: 'Start Date',
@@ -147,17 +159,18 @@ const Advertisement = () => {
       name: 'End Date',
       selector: row => (row.endDate ? row.endDate.split('T')[0] : 'N/A')
     },
-    {
-      name: 'Client Name',
-      selector: row => findUserName(row.clientId)
-    },
+
     {
       name: 'Status',
       selector: row => (row.isActive ? <Active>Active</Active> : <InActive>Inactive</InActive>)
     },
     {
       name: 'Update',
-      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.bannerId)} />
+      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.advertiseId)} />
+    },
+    {
+      name: 'Delete',
+      cell: row => <StyledDeleteButton onClick={id => handleDelete(row.advertiseId)} />
     }
   ]
 
@@ -180,23 +193,35 @@ const Advertisement = () => {
     const result = data.filter(item => {
       const businessName = item.businessName.toLowerCase().includes(search.toLocaleLowerCase())
       const businessURL = item.businessURL.toLowerCase().includes(search.toLocaleLowerCase())
-      const country = item.countryName.toLowerCase().includes(search.toLocaleLowerCase())
+
+      // const country = item.countryName.toLowerCase().includes(search.toLocaleLowerCase())
+
       const phoneNumber = item.phoneNumber.toLowerCase().includes(search.toLocaleLowerCase())
 
-      return businessName || businessURL || country || phoneNumber
+      return businessName || businessURL || phoneNumber
     })
-    console.log(result)
     setFilter(result)
   }, [search, data])
 
-  const singleAds = data.find(i => i.bannerId === getid)
-  const actionsMemo = useMemo(() => <Export onExport={() => downloadCSV(data)} />, [data])
+  const handleDelete = async id => {
+    const ads = await data.find(i => i.advertiseId === id)
+    dispatch(ChangeAdvertiseStatus({ id: id, data: { isActive: false } }))
+    dispatch(fetchAdsdata())
+  }
+
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1')
+    XLSX.writeFile(wb, 'Advertise_data.xlsx')
+  }
 
   return (
     <>
       <Grid item xs={12}>
         <Card>
           <CardHeader title='Advertisement Report' titleTypographyProps={{ variant: 'h6' }} />
+
           <DataTable
             customStyles={tableHeaderstyle}
             columns={columns}
@@ -220,11 +245,19 @@ const Advertisement = () => {
                         </InputAdornment>
                       )
                     }}
-                    actions={actionsMemo}
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />
                 </Box>
+                <Button
+                  variant='contained'
+                  size='small'
+                  onClick={exportToExcel}
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  Export to Excel &nbsp;
+                  <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
+                </Button>
               </Box>
             }
             subHeaderAlign='right'
@@ -239,7 +272,7 @@ const Advertisement = () => {
         aria-describedby='parent-modal-description'
       >
         <Box sx={{ ...style }}>
-          <AdsForm singleAds={singleAds} />
+          <AdsForm singleAds={singleAds} handleClose={handleClose} />
         </Box>
       </Modal>
     </>

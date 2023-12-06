@@ -10,30 +10,30 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
-import InputLabel from '@mui/material/InputLabel'
 
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
-import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
+
 import Box from '@mui/material/Box'
 import Magnify from 'mdi-material-ui/Magnify'
 import InputAdornment from '@mui/material/InputAdornment'
 import DataTable from 'react-data-table-component'
 
-import Typography from '@mui/material/Typography'
-
 import 'react-datepicker/dist/react-datepicker.css'
 import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
 import { useDispatch, useSelector } from 'react-redux'
-import { createCity, getCity, updateCity } from 'src/store/features/citySlice'
-import { getState } from 'src/store/features/stateSlice'
+
 import Modal from '@mui/material/Modal'
 import Alert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
-import CityModel from 'src/components/Model/cityModel'
 import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
+import {
+  createServiceDepartment,
+  getServiceDepartment,
+  updateServiceDepartment
+} from 'src/store/features/serviceDepartmentSlice'
+import Model from './model'
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -59,9 +59,7 @@ const style = {
 
 const FormLayoutsSeparator = () => {
   const [formData, setFormData] = useState({
-    stateId: '',
-    cityName: '',
-    isActive: 'true'
+    serviceDepartmentName: ''
   })
 
   const [filter, setFilter] = useState([])
@@ -72,17 +70,9 @@ const FormLayoutsSeparator = () => {
   const [successMessage, setSuccessMessage] = useState('')
 
   const dispatch = useDispatch()
-  const stateData = useSelector(state => state.stateData.data)
-  const cityData = useSelector(city => city.cityData.data)
+  const serviceDepartmentData = useSelector(state => state.serviceDepartmentData.data)
 
-  const singleCity = cityData?.find(i => i.cityId === getid)
-
-  // const [editedCity, setEditedCity] = useState({
-  //   stateId: singleCity.stateId,
-  //   cityName: singleCity.cityName,
-
-  //   isActive: singleCity.isActive
-  // })
+  const singleServiceDepartment = serviceDepartmentData?.find(i => i.serviceDepartmentId === getid)
 
   const handleChange = e => {
     const { name, value } = e.target
@@ -107,15 +97,13 @@ const FormLayoutsSeparator = () => {
   const handleSubmit = async e => {
     e.preventDefault()
     try {
-      await dispatch(createCity(formData))
+      dispatch(createServiceDepartment(formData))
       setFormData({
-        stateId: '',
-        cityName: '',
-        isActive: true
+        serviceDepartmentName: ''
       })
-      ShowSuccessMessage('Form submitted successfully')
+      ShowSuccessMessage('submitted successfully')
 
-      await dispatch(getCity())
+      dispatch(getServiceDepartment())
     } catch (error) {
       console.error('Error While Submitting Form', error)
     }
@@ -124,38 +112,24 @@ const FormLayoutsSeparator = () => {
   const handleClose = () => setOpen(false)
 
   useEffect(() => {
-    const result = cityData.filter(item => {
-      const cityId = item.cityName.toLowerCase().includes(search.toLowerCase())
-      const cityName = item.cityName.toLowerCase().includes(search.toLowerCase())
+    const result = serviceDepartmentData.filter(item => {
+      const department = item.serviceDepartmentName.toLowerCase().includes(search.toLowerCase())
 
-      return cityId || cityName
+      return department
     })
     setFilter(result)
-  }, [search, cityData])
-
-  useEffect(() => {
-    dispatch(getState())
-    dispatch(getCity())
-  }, [dispatch])
+  }, [search, serviceDepartmentData])
 
   const columns = [
     {
       name: 'Sr.No',
-      selector: row => row.cityId,
+      selector: row => row.serviceDepartmentId,
       sortable: true
     },
-    {
-      name: 'State',
-      selector: row => {
-        const state = stateData.find(i => row.stateId === i.stateId)
 
-        return state ? state.stateName.toUpperCase() : 'N/A'
-      },
-      sortable: true
-    },
     {
       name: 'City',
-      selector: row => row.cityName.toUpperCase(),
+      selector: row => row.serviceDepartmentName,
       sortable: true
     },
 
@@ -174,11 +148,11 @@ const FormLayoutsSeparator = () => {
     },
     {
       name: 'Update',
-      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.cityId)} />
+      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.serviceDepartmentId)} />
     },
     {
       name: 'Delete',
-      cell: row => <StyledDeleteButton onClick={id => handleUpdate(row.cityId)} />
+      cell: row => <StyledDeleteButton onClick={id => handleUpdate(row.serviceDepartmentId)} />
     }
   ]
 
@@ -194,11 +168,10 @@ const FormLayoutsSeparator = () => {
 
   const handleUpdate = async id => {
     try {
-      const data = await cityData.find(i => i.cityId === id)
-      await dispatch(updateCity({ id: id, data: { ...data, isActive: false } }))
-      ShowSuccessMessage('City Inactived successfully')
-
-      await dispatch(getCity())
+      const data = await serviceDepartmentData.find(i => i.serviceDepartmentId === id)
+      dispatch(updateServiceDepartment({ id: id, data: { ...data, isActive: false } }))
+      ShowSuccessMessage('Data Updated successfully')
+      dispatch(getServiceDepartment())
     } catch (error) {
       throw error
     }
@@ -208,76 +181,51 @@ const FormLayoutsSeparator = () => {
     const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1')
-    XLSX.writeFile(wb, 'City_data.xlsx')
+    XLSX.writeFile(wb, 'Service_Department_data.xlsx')
   }
+
+  useEffect(() => {
+    dispatch(getServiceDepartment())
+  }, [dispatch])
 
   return (
     <>
       {/* Form */}
       <Card>
-        <CardHeader title='AFMX Cites' titleTypographyProps={{ variant: 'h6' }} />
+        <CardHeader title='AFMX Service Department' titleTypographyProps={{ variant: 'h6' }} />
         <Divider sx={{ margin: 0 }} />
 
         <form onSubmit={handleSubmit}>
           <CardContent>
             <Grid container spacing={5}>
-              <Grid item xs={12}>
-                <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                  --Add City
-                </Typography>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Select State</InputLabel>
-                  <Select label='State Name' name='stateId' onChange={handleChange}>
-                    {stateData.map(item => (
-                      <MenuItem key={item.stateId} value={item.stateId}>
-                        {item.stateName?.toUpperCase()}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label='City'
-                  name='cityName'
-                  placeholder=' Enter City Name'
-                  value={formData.cityName}
+                  label='Department Name'
+                  name='serviceDepartmentName'
+                  placeholder=' Enter Department Name'
                   onChange={handleChange}
                 />
               </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select label='Status' defaultValue={formData.isActive} name='isActive' onChange={handleChange}>
-                    <MenuItem value={true}>Active</MenuItem>
-                    <MenuItem value={false}>Inactive</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
+              <CardActions>
+                <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
+                  Add Department
+                </Button>
+              </CardActions>
             </Grid>
           </CardContent>
-          <Divider sx={{ margin: 0 }} />
-          <CardActions>
-            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
-              Submit
-            </Button>
-          </CardActions>
         </form>
       </Card>
 
       {/*City Table */}
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='city List' titleTypographyProps={{ variant: 'h6' }} />
+          <CardHeader title='Service Department List' titleTypographyProps={{ variant: 'h6' }} />
 
           <DataTable
             customStyles={tableHeaderstyle}
             columns={columns}
-            data={filter === null ? cityData : filter}
+            data={filter === null ? serviceDepartmentData : filter}
             pagination
             selectableRows
             fixedHeader
@@ -325,7 +273,7 @@ const FormLayoutsSeparator = () => {
         aria-describedby='parent-modal-description'
       >
         <Box sx={{ ...style }}>
-          <CityModel singleCity={singleCity} handleClose={handleClose} />
+          <Model singleServiceDepartment={singleServiceDepartment} handleClose={handleClose} />
         </Box>
       </Modal>
 

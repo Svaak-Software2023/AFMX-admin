@@ -30,6 +30,7 @@ import '../../styles/globals.css'
 // ** redux-provider
 import { Provider } from 'react-redux'
 import { store } from 'src/store/store'
+import LoginPage from './pages/login'
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -52,6 +53,10 @@ const App = props => {
 
   // Variables
   const getLayout = Component.getLayout ?? (page => <UserLayout>{page}</UserLayout>)
+
+  const isBrowser = typeof window !== 'undefined'
+
+  // const loggedIn = isBrowser && !!sessionStorage.getItem('adminData')
 
   return (
     <CacheProvider value={emotionCache}>
