@@ -46,7 +46,7 @@ export const updateServiceDepartment = createAsyncThunk('form/updateServiceDepar
   }
 })
 
-export const serviceDepartment = createSlice({
+export const serviceDepartmentSlice = createSlice({
   name: 'serviceDepartment',
   initialState,
 
@@ -87,4 +87,4 @@ export const serviceDepartment = createSlice({
   }
 })
 
-export default serviceDepartment.reducer
+export default serviceDepartmentSlice.reducer
