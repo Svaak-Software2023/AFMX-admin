@@ -1,40 +1,38 @@
-// ** React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { styled } from '@mui/material/styles'
 
 // ** MUI Imports
-import Card from '@mui/material/Card'
-import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import CardHeader from '@mui/material/CardHeader'
-import InputLabel from '@mui/material/InputLabel'
-import CardContent from '@mui/material/CardContent'
-import CardActions from '@mui/material/CardActions'
-import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
-import Box from '@mui/material/Box'
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
+import {
+  Card,
+  Grid,
+  Button,
+  Divider,
+  TextField,
+  CardHeader,
+  CardContent,
+  CardActions,
+  Box,
+  Alert,
+  Snackbar,
+  Modal,
+  Typography
+} from '@mui/material'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
-import Modal from '@mui/material/Modal'
 
 // ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
 import { CreateCountry, getCountry, updateCountry } from 'src/store/features/countrySlice'
-import { useEffect } from 'react'
 
 import DataTable from 'react-data-table-component'
 import Magnify from 'mdi-material-ui/Magnify'
 import InputAdornment from '@mui/material/InputAdornment'
-import CountryModel from 'src/components/Model/countryModel'
 import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
+import AddIcon from '@mui/icons-material/Add'
+import CountryModel from './CountryModel'
 
 // table funtion
 const Active = styled('p')(() => ({
@@ -60,38 +58,36 @@ const style = {
 }
 
 const FormLayoutsSeparator = () => {
+  // -----------------------------------REDUX STORE ------------------------------------
   const dispatch = useDispatch()
-  const formStatus = useSelector(state => state.countryData.status)
-  const countryData = useSelector(state => state.countryData.data)
+  const { data, loading, status } = useSelector(state => state.countryData)
 
+  // --------------------------------------UseState --------------------------------
   const [filter, setFilter] = useState([])
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const [getid, setGetId] = useState('')
-
-  const handleOpen = id => {
-    setGetId(id)
-    setOpen(true)
-  }
-
-  const handleClose = () => setOpen(false)
+  const [isFormVisible, setFormVisible] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
   const [formData, setFormData] = useState({
     countryName: '',
     countryShortName: '',
-    countryPhoneCode: '',
-    isActive: true
+    countryPhoneCode: ''
   })
 
-  const [successMessage, setSuccessMessage] = useState('')
+  //------------------------------------Open & Close Modal ---------------------------
+  const handleOpen = id => {
+    setGetId(id)
+    setOpen(true)
+  }
+  const handleClose = () => setOpen(false)
 
-  const showSuccessMessage = message => {
-    setSuccessMessage(message)
-    setTimeout(() => {
-      setSuccessMessage('')
-    }, 3000)
+  const handleAddForm = () => {
+    setFormVisible(prev => !prev)
   }
 
+  // ----------------------------------------- Handle Changes --------------------------------
   const handleChange = e => {
     const { name, value } = e.target
     setFormData({
@@ -100,6 +96,7 @@ const FormLayoutsSeparator = () => {
     })
   }
 
+  // ------------------------------------------ React Data Table --------------------------------
   const columns = [
     {
       name: 'Sr.No',
@@ -136,12 +133,13 @@ const FormLayoutsSeparator = () => {
       selector: row => (row.isActive ? <Active>Active</Active> : <InActive>Inactive</InActive>)
     },
     {
-      name: 'Update',
-      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.countryId)} />
-    },
-    {
-      name: 'Delete',
-      cell: row => <StyledDeleteButton onClick={id => handleDelete(row.countryId)} />
+      name: 'Action',
+      cell: row => (
+        <>
+          <StyledUpdateButton onClick={id => handleOpen(row.countryId)} /> &nbsp; &nbsp;
+          <StyledDeleteButton onClick={id => handleDelete(row.countryId)} />
+        </>
+      )
     }
   ]
 
@@ -155,6 +153,8 @@ const FormLayoutsSeparator = () => {
     }
   }
 
+  //-----------------------------------------------Actions -------------------------------------------
+  //------------------Submit form-------
   const handleSubmit = e => {
     e.preventDefault()
     try {
@@ -162,35 +162,20 @@ const FormLayoutsSeparator = () => {
       setFormData({
         countryName: '',
         countryShortName: '',
-        countryPhoneCode: '',
-        isActive: true
+        countryPhoneCode: ''
       })
       showSuccessMessage('Form submitted successfully')
+      setFormVisible(false)
       dispatch(getCountry())
     } catch (error) {
       console.error('Error While Submitting Form', error)
     }
   }
 
-  const singleCountry = countryData?.find(i => i.countryId === getid)
-  useEffect(() => {
-    dispatch(getCountry())
-  }, [dispatch])
-
-  useEffect(() => {
-    const result = countryData?.filter(item => {
-      const country = item.countryName.toLowerCase().includes(search.toLowerCase())
-      const countryShortName = item.countryShortName.toLowerCase().includes(search.toLowerCase())
-      const countryPhoneCode = item.countryPhoneCode.toLowerCase().includes(search.toLowerCase())
-
-      return country || countryShortName || countryPhoneCode
-    })
-    setFilter(result)
-  }, [search, countryData])
-
+  // ----------------Delete ----------
   const handleDelete = async id => {
     try {
-      const data = await countryData.find(i => i.countryId === id)
+      const data = await data?.find(i => i.countryId === id)
       dispatch(updateCountry({ id: id, data: { ...data, isActive: false } }))
       dispatch(getCountry())
     } catch (error) {
@@ -198,6 +183,23 @@ const FormLayoutsSeparator = () => {
     }
   }
 
+  //----------------------------Use Effects --------------------------------
+  useEffect(() => {
+    dispatch(getCountry())
+  }, [dispatch])
+
+  useEffect(() => {
+    const result = data?.filter(item => {
+      const country = item.countryName.toLowerCase().includes(search.toLowerCase())
+      const countryShortName = item.countryShortName.toLowerCase().includes(search.toLowerCase())
+      const countryPhoneCode = item.countryPhoneCode.toLowerCase().includes(search.toLowerCase())
+
+      return country || countryShortName || countryPhoneCode
+    })
+    setFilter(result)
+  }, [search, data])
+
+  // ----------------------------------Export To Excel Data --------------------------------
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
     const wb = XLSX.utils.book_new()
@@ -205,84 +207,89 @@ const FormLayoutsSeparator = () => {
     XLSX.writeFile(wb, 'Country_data.xlsx')
   }
 
-  // const singleCountry = countryData && Array.isArray(countryData) ? countryData.find(i => i.countryId === getid) : null
+  // -------------------------------------- Notifications -----------------------------
+
+  const showSuccessMessage = message => {
+    setSuccessMessage(message)
+    setTimeout(() => {
+      setSuccessMessage('')
+    }, 3000)
+  }
+
+  //-----------------------------------------//--------------------------------------------------
 
   return (
     <>
       {/* Form */}
       <Card>
-        <CardHeader title='AFMX Country' titleTypographyProps={{ variant: 'h6' }} />
+        {isFormVisible && (
+          <>
+            <form onSubmit={handleSubmit}>
+              <CardContent>
+                <Typography variant='h6' sx={{ textAlign: 'center', margin: 0 }}>
+                  Add Country
+                </Typography>
+                <Divider />
+                <DatePickerWrapper>
+                  <Grid container spacing={5}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Country'
+                        name='countryName'
+                        placeholder='Enter Country Name'
+                        value={data.countryName}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        name='countryShortName'
+                        label='Country Short Name'
+                        placeholder='Enter Country Short Name'
+                        value={data.countryShortName}
+                        onChange={handleChange}
+                      />
+                    </Grid>
 
-        <Divider sx={{ margin: 0 }} />
-        <form onSubmit={handleSubmit}>
-          <CardContent>
-            <DatePickerWrapper>
-              <Grid container spacing={5}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label='Country'
-                    name='countryName'
-                    placeholder='Enter Country Name'
-                    value={formData.countryName}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name='countryShortName'
-                    label='Country Short Name'
-                    placeholder='Enter Country Short Name'
-                    value={formData.countryShortName}
-                    onChange={handleChange}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name='countryPhoneCode'
-                    label='Country Phone Code'
-                    placeholder='Enter Country Phone Code'
-                    value={formData.countryPhoneCode}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Status</InputLabel>
-                    <Select label='Status' name='isActive' defaultValue={true} onChange={handleChange}>
-                      <MenuItem value={true}>Active</MenuItem>
-                      <MenuItem value={false}>Inactive</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </DatePickerWrapper>
-          </CardContent>
-          <Divider sx={{ margin: 0 }} />
-          <CardActions>
-            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
-              {formStatus === 'loading' ? 'Submitting...' : 'Submit'}
-            </Button>
-          </CardActions>
-        </form>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        name='countryPhoneCode'
+                        label='Country Phone Code'
+                        placeholder='Enter Country Phone Code'
+                        value={data.countryPhoneCode}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                  </Grid>
+                </DatePickerWrapper>
+              </CardContent>
+              <CardActions sx={{ display: 'flex', justifyContent: 'end' }}>
+                <Button size='medium' type='submit' variant='contained'>
+                  {status === 'loading' ? 'Submitting...' : 'Submit'}
+                </Button>
+              </CardActions>
+            </form>
+          </>
+        )}
       </Card>
 
       {/*Country Table */}
-      <Grid item xs={12} sx={{ marginTop: '10px' }}>
+      {/* ---------------------------------------------------------------------------- */}
+      <Grid item xs={12} sx={{ marginTop: '5px' }}>
         <Card>
           <CardHeader
-            title='Country List'
+            title='AFMX Country List'
             titleTypographyProps={{ variant: 'h6' }}
             sx={{ fontWeight: 'bolder', textAlign: 'center' }}
           />
-
+          <Divider sx={{ margin: '0' }} />
           <DataTable
             customStyles={tableHeaderstyle}
             columns={columns}
-            data={filter === null ? countryData : filter}
+            data={filter === null ? data : filter}
             pagination
             selectableRows
             fixedHeader
@@ -306,15 +313,22 @@ const FormLayoutsSeparator = () => {
                     onChange={e => setSearch(e.target.value)}
                   />
                 </Box>
-                <Button
-                  variant='contained'
-                  size='small'
-                  onClick={exportToExcel}
-                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  Export to Excel &nbsp;
-                  <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
-                </Button>
+
+                <Box sx={{ display: 'flex' }}>
+                  <Button onClick={handleAddForm} sx={{ mr: 1 }} variant='contained' size='small' color='success'>
+                    <AddIcon /> Add Country
+                  </Button>
+
+                  <Button
+                    variant='contained'
+                    size='small'
+                    onClick={exportToExcel}
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    Export to Excel &nbsp;
+                    <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
+                  </Button>
+                </Box>
               </Box>
             }
             subHeaderAlign='right'
@@ -323,20 +337,23 @@ const FormLayoutsSeparator = () => {
       </Grid>
 
       {/* Model to Update Country */}
+      {/* ------------------------------------------------------------------------- */}
       <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby='parent-modal-title'
         aria-describedby='parent-modal-description'
       >
-        <Box sx={{ ...style }}>{<CountryModel getid={getid} handleClose={handleClose} />}</Box>
+        <Box sx={{ ...style }}>
+          {<CountryModel getid={getid} handleClose={handleClose} showSuccessMessage={showSuccessMessage} />}
+        </Box>
       </Modal>
-
+      {/* ----------------------------------------------------------------------------------------- */}
       <Snackbar
         open={!!successMessage}
         autoHideDuration={3000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert onClose={handleClose} severity='success' sx={{ width: '100%' }}>
           Country Created successfully

@@ -1,39 +1,41 @@
 // ** React Imports
-import { forwardRef, useEffect, useState } from 'react'
-import { styled } from '@mui/material/styles'
+import { useEffect, useState } from 'react'
 
 // ** MUI Imports
-import Card from '@mui/material/Card'
-import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import CardHeader from '@mui/material/CardHeader'
-import InputLabel from '@mui/material/InputLabel'
-
-import CardContent from '@mui/material/CardContent'
-import CardActions from '@mui/material/CardActions'
-import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
-import Box from '@mui/material/Box'
+import {
+  Card,
+  Grid,
+  Button,
+  Divider,
+  MenuItem,
+  TextField,
+  CardHeader,
+  InputLabel,
+  CardContent,
+  CardActions,
+  FormControl,
+  Select,
+  Box,
+  InputAdornment,
+  Typography,
+  Modal,
+  Alert,
+  Snackbar
+} from '@mui/material'
 import Magnify from 'mdi-material-ui/Magnify'
-import InputAdornment from '@mui/material/InputAdornment'
+import { styled } from '@mui/material/styles'
+
 import DataTable from 'react-data-table-component'
 
-import Typography from '@mui/material/Typography'
-
 import 'react-datepicker/dist/react-datepicker.css'
-import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { createCity, getCity, updateCity } from 'src/store/features/citySlice'
 import { getState } from 'src/store/features/stateSlice'
-import Modal from '@mui/material/Modal'
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
-import CityModel from 'src/components/Model/cityModel'
 import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
+import AddIcon from '@mui/icons-material/Add'
+import CityModel from './CityModel'
+import { StyledDeleteButton, StyledUpdateButton } from 'src/views/icons'
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -58,32 +60,26 @@ const style = {
 }
 
 const FormLayoutsSeparator = () => {
+  //----------------------------- Use State ------------------------------
   const [formData, setFormData] = useState({
     stateId: '',
-    cityName: '',
-    isActive: 'true'
+    cityName: ''
   })
-
   const [filter, setFilter] = useState([])
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
-
   const [getid, setGetId] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [isFormVisible, setFormVisible] = useState(false)
 
+  // ------------------------------Redus Store -----------------------------
   const dispatch = useDispatch()
   const stateData = useSelector(state => state.stateData.data)
   const cityData = useSelector(city => city.cityData.data)
 
   const singleCity = cityData?.find(i => i.cityId === getid)
 
-  // const [editedCity, setEditedCity] = useState({
-  //   stateId: singleCity.stateId,
-  //   cityName: singleCity.cityName,
-
-  //   isActive: singleCity.isActive
-  // })
-
+  //--------------------------------Handle Change --------------------------------
   const handleChange = e => {
     const { name, value } = e.target
     setFormData({
@@ -92,11 +88,18 @@ const FormLayoutsSeparator = () => {
     })
   }
 
+  // ------------------------------- Open & Close Form --------------------------------
   const handleOpen = id => {
     setGetId(id)
     setOpen(true)
   }
+  const handleClose = () => setOpen(false)
 
+  const handleAddForm = () => {
+    setFormVisible(prev => !prev)
+  }
+
+  // -------------------------------------- Notifications --------------------------------
   const ShowSuccessMessage = message => {
     setSuccessMessage(message)
     setTimeout(() => {
@@ -104,25 +107,38 @@ const FormLayoutsSeparator = () => {
     }, 3000)
   }
 
+  // -------------------------------------- Actions --------------------------------
+  // Submit form
   const handleSubmit = async e => {
     e.preventDefault()
     try {
-      await dispatch(createCity(formData))
+      dispatch(createCity(formData))
       setFormData({
         stateId: '',
-        cityName: '',
-        isActive: true
+        cityName: ''
       })
       ShowSuccessMessage('Form submitted successfully')
 
-      await dispatch(getCity())
+      dispatch(getCity())
     } catch (error) {
       console.error('Error While Submitting Form', error)
     }
   }
 
-  const handleClose = () => setOpen(false)
+  // Update
+  const handleUpdate = async id => {
+    try {
+      const data = await cityData.find(i => i.cityId === id)
+      dispatch(updateCity({ id: id, data: { ...data, isActive: false } }))
+      ShowSuccessMessage('City Inactived successfully')
 
+      dispatch(getCity())
+    } catch (error) {
+      throw error
+    }
+  }
+
+  // --------------------------------------Use Effects --------------------------------
   useEffect(() => {
     const result = cityData.filter(item => {
       const cityId = item.cityName.toLowerCase().includes(search.toLowerCase())
@@ -138,6 +154,7 @@ const FormLayoutsSeparator = () => {
     dispatch(getCity())
   }, [dispatch])
 
+  // ----------------------------------------React Data Table--------------------------------
   const columns = [
     {
       name: 'Sr.No',
@@ -173,12 +190,13 @@ const FormLayoutsSeparator = () => {
       selector: row => (row.isActive ? <Active>Active</Active> : <InActive>Inactive</InActive>)
     },
     {
-      name: 'Update',
-      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.cityId)} />
-    },
-    {
-      name: 'Delete',
-      cell: row => <StyledDeleteButton onClick={id => handleUpdate(row.cityId)} />
+      name: 'Action',
+      cell: row => (
+        <>
+          <StyledUpdateButton onClick={id => handleOpen(row.cityId)} /> &nbsp; &nbsp;
+          <StyledDeleteButton onClick={id => handleUpdate(row.cityId)} />
+        </>
+      )
     }
   ]
 
@@ -192,18 +210,7 @@ const FormLayoutsSeparator = () => {
     }
   }
 
-  const handleUpdate = async id => {
-    try {
-      const data = await cityData.find(i => i.cityId === id)
-      await dispatch(updateCity({ id: id, data: { ...data, isActive: false } }))
-      ShowSuccessMessage('City Inactived successfully')
-
-      await dispatch(getCity())
-    } catch (error) {
-      throw error
-    }
-  }
-
+  // ------------------------------------ Ecport to Excel --------------------------------
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
     const wb = XLSX.utils.book_new()
@@ -213,66 +220,60 @@ const FormLayoutsSeparator = () => {
 
   return (
     <>
-      {/* Form */}
+      {/* ------------------------------Form------------------------------------------ */}
       <Card>
-        <CardHeader title='AFMX Cites' titleTypographyProps={{ variant: 'h6' }} />
-        <Divider sx={{ margin: 0 }} />
-
-        <form onSubmit={handleSubmit}>
-          <CardContent>
-            <Grid container spacing={5}>
-              <Grid item xs={12}>
-                <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                  --Add City
-                </Typography>
+        {isFormVisible && (
+          <form onSubmit={handleSubmit}>
+            <CardContent>
+              <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                Add City
+              </Typography>
+              <Divider sx={{ marginBottom: '5px' }} />
+              <Grid container spacing={5}>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Select State</InputLabel>
+                    <Select label='State Name' name='stateId' onChange={handleChange}>
+                      {stateData.map(item =>
+                        item.isActive == true ? (
+                          <MenuItem key={item.stateId} value={item.stateId}>
+                            {item.stateName?.toUpperCase()}
+                          </MenuItem>
+                        ) : null
+                      )}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label='City'
+                    name='cityName'
+                    placeholder=' Enter City Name'
+                    value={formData.cityName}
+                    onChange={handleChange}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Select State</InputLabel>
-                  <Select label='State Name' name='stateId' onChange={handleChange}>
-                    {stateData.map(item => (
-                      <MenuItem key={item.stateId} value={item.stateId}>
-                        {item.stateName?.toUpperCase()}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label='City'
-                  name='cityName'
-                  placeholder=' Enter City Name'
-                  value={formData.cityName}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select label='Status' defaultValue={formData.isActive} name='isActive' onChange={handleChange}>
-                    <MenuItem value={true}>Active</MenuItem>
-                    <MenuItem value={false}>Inactive</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </CardContent>
-          <Divider sx={{ margin: 0 }} />
-          <CardActions>
-            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
-              Submit
-            </Button>
-          </CardActions>
-        </form>
+            </CardContent>
+            <CardActions sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Button size='medium' type='submit' sx={{ mr: 2 }} variant='contained'>
+                Submit
+              </Button>
+            </CardActions>
+          </form>
+        )}
       </Card>
-
-      {/*City Table */}
-      <Grid item xs={12}>
+      {/* -------------------------------Table ---------------------------------------------- */}
+      <Grid item xs={12} mt={2}>
         <Card>
-          <CardHeader title='city List' titleTypographyProps={{ variant: 'h6' }} />
+          <CardHeader
+            title='AFMX City List'
+            titleTypographyProps={{ variant: 'h6' }}
+            sx={{ fontWeight: 'bolder', textAlign: 'center', margin: '0' }}
+          />
+
+          <Divider sx={{ margin: '0' }} />
 
           <DataTable
             customStyles={tableHeaderstyle}
@@ -301,15 +302,21 @@ const FormLayoutsSeparator = () => {
                     onChange={e => setSearch(e.target.value)}
                   />
                 </Box>
-                <Button
-                  variant='contained'
-                  size='small'
-                  onClick={exportToExcel}
-                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  Export to Excel &nbsp;
-                  <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
-                </Button>
+
+                <Box sx={{ display: 'flex' }}>
+                  <Button onClick={handleAddForm} sx={{ mr: 1 }} variant='contained' size='small' color='success'>
+                    <AddIcon /> Add State
+                  </Button>
+                  <Button
+                    variant='contained'
+                    size='small'
+                    onClick={exportToExcel}
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    Export to Excel &nbsp;
+                    <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
+                  </Button>
+                </Box>
               </Box>
             }
             subHeaderAlign='right'
@@ -317,7 +324,7 @@ const FormLayoutsSeparator = () => {
         </Card>
       </Grid>
 
-      {/* Model to Update State */}
+      {/*------------------------------------- Model to Update State------------------------------ */}
       <Modal
         open={open}
         onClose={handleClose}
@@ -325,7 +332,7 @@ const FormLayoutsSeparator = () => {
         aria-describedby='parent-modal-description'
       >
         <Box sx={{ ...style }}>
-          <CityModel singleCity={singleCity} handleClose={handleClose} />
+          <CityModel singleCity={singleCity} handleClose={handleClose} ShowSuccessMessage={ShowSuccessMessage} />
         </Box>
       </Modal>
 

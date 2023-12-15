@@ -31,9 +31,10 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { createState, getState, updateState } from 'src/store/features/stateSlice'
 import { getCountry } from 'src/store/features/countrySlice'
-import StateModel from 'src/components/Model/stateModel'
 import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
+import AddIcon from '@mui/icons-material/Add'
+import StateModel from './StateModel'
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -58,30 +59,18 @@ const style = {
 }
 
 const FormLayoutsSeparator = () => {
+  //---------------------------Redux Store ------------------------
   const dispatch = useDispatch()
   const stateData = useSelector(state => state.stateData.data)
   const countryData = useSelector(state => state.countryData.data)
 
+  // ------------------------Use State ------------------------
   const [filter, setFilter] = useState([])
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const [getid, setGetId] = useState('')
-
-  const handleOpen = id => {
-    setGetId(id)
-    setOpen(true)
-  }
-
+  const [isFormVisible, setFormVisible] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
-
-  const showSuccessMessage = message => {
-    setSuccessMessage(message)
-    setTimeout(() => {
-      setSuccessMessage('')
-    }, 3000)
-  }
-
-  const handleClose = () => setOpen(false)
 
   const [formData, setFormData] = useState({
     countryId: '',
@@ -90,11 +79,27 @@ const FormLayoutsSeparator = () => {
     isActive: 'true'
   })
 
-  useEffect(() => {
-    dispatch(getCountry())
-    dispatch(getState())
-  }, [dispatch])
+  //-------------------------------Open & Close Form----------------------------------------------------
+  const handleOpen = id => {
+    setGetId(id)
+    setOpen(true)
+  }
 
+  const handleClose = () => setOpen(false)
+
+  const handleAddForm = () => {
+    setFormVisible(prev => !prev)
+  }
+
+  // ---------------------------------- Notifications -------------------------------------------------------
+  const showSuccessMessage = message => {
+    setSuccessMessage(message)
+    setTimeout(() => {
+      setSuccessMessage('')
+    }, 3000)
+  }
+
+  // ------------------------------------Handle Change --------------------------------------
   const handleChange = e => {
     const { name, value } = e.target
     setFormData({
@@ -103,22 +108,36 @@ const FormLayoutsSeparator = () => {
     })
   }
 
+  // -------------------------------------Actions ----------------------------------------------------
+  //-----------Submit form---------
   const handleSubmit = async e => {
     e.preventDefault()
     try {
-      await dispatch(createState(formData))
+      dispatch(createState(formData))
       setFormData({
         countryId: '',
         stateName: '',
         isActive: true
       })
       showSuccessMessage('Form submitted successfully')
-      await dispatch(getState())
+      dispatch(getState())
     } catch (error) {
       console.error('Error While submitting Form.', error)
     }
   }
 
+  //------------Update----------
+  const handleUpdate = async id => {
+    try {
+      const data = await stateData.find(i => i.stateId === id)
+      dispatch(updateState({ id: id, data: { ...data, isActive: false } }))
+      dispatch(getState())
+    } catch (error) {
+      throw error
+    }
+  }
+
+  //-----------------------------Use Effects ---------------------------------
   useEffect(() => {
     const result = stateData.filter(item => {
       const countryId = item.stateName.toLowerCase().includes(search.toLowerCase())
@@ -129,6 +148,12 @@ const FormLayoutsSeparator = () => {
     setFilter(result)
   }, [search, stateData])
 
+  useEffect(() => {
+    dispatch(getCountry())
+    dispatch(getState())
+  }, [dispatch])
+
+  //--------------------------------React Data Table----------------------------------------------------
   const columns = [
     {
       name: 'Sr.No',
@@ -164,12 +189,14 @@ const FormLayoutsSeparator = () => {
       selector: row => (row.isActive ? <Active>Active</Active> : <InActive>Inactive</InActive>)
     },
     {
-      name: 'Update',
-      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.stateId)} />
-    },
-    {
-      name: 'Delete',
-      cell: row => <StyledDeleteButton onClick={id => handleUpdate(row.stateId)} />
+      name: 'Action',
+      cell: row => (
+        <>
+          {' '}
+          <StyledUpdateButton onClick={id => handleOpen(row.stateId)} /> &nbsp; &nbsp;
+          <StyledDeleteButton onClick={id => handleUpdate(row.stateId)} />
+        </>
+      )
     }
   ]
 
@@ -185,16 +212,7 @@ const FormLayoutsSeparator = () => {
 
   const singleState = stateData?.find(i => i.stateId === getid)
 
-  const handleUpdate = async id => {
-    try {
-      const data = await stateData.find(i => i.stateId === id)
-      await dispatch(updateState({ id: id, data: { ...data, isActive: false } }))
-      await dispatch(getState())
-    } catch (error) {
-      throw error
-    }
-  }
-
+  //------------------------------------Export Table into Excel ------------------------
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
     const wb = XLSX.utils.book_new()
@@ -204,68 +222,64 @@ const FormLayoutsSeparator = () => {
 
   return (
     <>
-      {/* Form */}
+      {/*------------------------- Form---------------------------- */}
       <Card>
-        <CardHeader title='AFMX State' titleTypographyProps={{ variant: 'h6' }} />
-        <Divider sx={{ margin: 0 }} />
-
-        <form onSubmit={handleSubmit}>
-          <CardContent>
-            <Grid container spacing={5}>
-              <Grid item xs={12}>
-                <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                  -- Add State
+        {isFormVisible && (
+          <>
+            <form onSubmit={handleSubmit}>
+              <CardContent>
+                <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                  Add State
                 </Typography>
-              </Grid>
+                <Divider sx={{ marginBottom: '5px' }} />
+                <Grid container spacing={5}>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Select Country</InputLabel>
+                      <Select label='Select Country' name='countryId' onChange={handleChange}>
+                        {countryData.map(item =>
+                          item.isActive == true ? (
+                            <MenuItem key={item.countryId} value={item.countryId}>
+                              {item.countryName?.toUpperCase()}
+                            </MenuItem>
+                          ) : null
+                        )}
+                      </Select>
+                    </FormControl>
+                  </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Select Country</InputLabel>
-                  <Select label='Select Country' name='countryId' onChange={handleChange}>
-                    {countryData.map(item => (
-                      <MenuItem key={item.countryId} value={item.countryId}>
-                        {item.countryName?.toUpperCase()}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label=' State Name'
-                  placeholder='Enter  State Name'
-                  name='stateName'
-                  value={formData.stateName}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select label='Status' defaultValue={true} name='isActive' onChange={handleChange}>
-                    <MenuItem value={true}>Active</MenuItem>
-                    <MenuItem value={false}>Inactive</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </CardContent>
-          <Divider sx={{ margin: 0 }} />
-          <CardActions>
-            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
-              Submit
-            </Button>
-          </CardActions>
-        </form>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label=' State Name'
+                      placeholder='Enter  State Name'
+                      name='stateName'
+                      value={formData.stateName}
+                      onChange={handleChange}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+              <CardActions sx={{ display: 'flex', justifyContent: 'end' }}>
+                <Button size='medium' type='submit' sx={{ mr: 2 }} variant='contained'>
+                  Submit
+                </Button>
+              </CardActions>
+            </form>
+          </>
+        )}
       </Card>
 
-      {/*Country Table */}
-      <Grid item xs={12} sx={{ marginTop: '10px' }}>
+      {/*------------------------------Country Table-------------------------------- */}
+      <Grid item xs={12} sx={{ marginTop: '5px' }}>
         <Card>
-          <CardHeader title='State List' titleTypographyProps={{ variant: 'h6' }} />
+          <CardHeader
+            title='AFMX State List'
+            titleTypographyProps={{ variant: 'h6' }}
+            sx={{ fontWeight: 'bolder', textAlign: 'center' }}
+          />
+
+          <Divider sx={{ margin: '0' }} />
 
           <DataTable
             customStyles={tableHeaderstyle}
@@ -294,15 +308,21 @@ const FormLayoutsSeparator = () => {
                     onChange={e => setSearch(e.target.value)}
                   />
                 </Box>
-                <Button
-                  variant='contained'
-                  size='small'
-                  onClick={exportToExcel}
-                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  Export to Excel &nbsp;
-                  <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
-                </Button>
+
+                <Box sx={{ display: 'flex' }}>
+                  <Button onClick={handleAddForm} sx={{ mr: 1 }} variant='contained' size='small' color='success'>
+                    <AddIcon /> Add State
+                  </Button>
+                  <Button
+                    variant='contained'
+                    size='small'
+                    onClick={exportToExcel}
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    Export to Excel &nbsp;
+                    <SiMicrosoftexcel style={{ fontSize: '1.3rem' }} />
+                  </Button>
+                </Box>
               </Box>
             }
             subHeaderAlign='right'
@@ -310,7 +330,7 @@ const FormLayoutsSeparator = () => {
         </Card>
       </Grid>
 
-      {/* Model to Update State */}
+      {/*------------------------- Model to Update State ------------------- */}
       <Modal
         open={open}
         onClose={handleClose}
@@ -329,7 +349,7 @@ const FormLayoutsSeparator = () => {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={handleClose} severity='success' sx={{ width: '100%' }}>
-          State Created successfully
+          {successMessage}
         </Alert>
       </Snackbar>
     </>

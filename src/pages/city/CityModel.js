@@ -9,38 +9,36 @@ import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
 import InputLabel from '@mui/material/InputLabel'
-import { getCity, updateCity } from 'src/store/features/citySlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { styled } from '@mui/material/styles'
+import { getCity, updateCity } from 'src/store/features/citySlice'
 
 const Form = styled('form')(({ theme }) => ({
   maxWidth: '100%',
   padding: theme.spacing(12),
   borderRadius: theme.shape.borderRadius,
 
-  // border: `1px solid ${theme.palette.divider}`,
   overflow: 'hidden'
 }))
 
-const CityModel = props => {
-  const { singleCity, handleClose, ShowSuccessMessage } = props
+const CityModel = ({ singleCity, handleClose, ShowSuccessMessage }) => {
+  // --------------------------------------Redux Store -------------------------
   const dispatch = useDispatch()
   const stateData = useSelector(state => state.stateData.data)
 
   const stateName = () => {
-    const data = stateData.find(i => i.stateId === singleCity.stateId)
+    const data = stateData?.find(i => i.stateId === singleCity.stateId)
 
     return data.stateName
   }
 
+  //-------------------------------------- Use State ----------------------------
   const [editedCity, setEditedCity] = useState({
     stateId: singleCity.stateId,
     cityName: singleCity.cityName,
 
     isActive: singleCity.isActive
   })
-
-  console.log(editedCity)
 
   const handleTextFieldChange = (field, value) => {
     setEditedCity(prev => ({
@@ -49,12 +47,13 @@ const CityModel = props => {
     }))
   }
 
-  const handleUpdate = async e => {
+  const handleUpdate = e => {
     e.preventDefault()
     try {
-      await dispatch(updateCity({ id: singleCity.cityId, data: editedCity }))
+      dispatch(updateCity({ id: singleCity.cityId, data: editedCity }))
       handleClose()
-      await dispatch(getCity())
+      dispatch(getCity())
+      ShowSuccessMessage('City updated successfully')
     } catch (error) {
       throw error
     }

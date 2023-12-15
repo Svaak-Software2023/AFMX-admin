@@ -1,62 +1,24 @@
 // ** MUI Imports
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import TableCell, { tableCellClasses } from '@mui/material/TableCell'
+import { Grid, Card, CardHeader, Modal, Box, Button, TextField, InputAdornment } from '@mui/material'
+import Magnify from 'mdi-material-ui/Magnify'
 import { styled } from '@mui/material/styles'
-
-import TableRow from '@mui/material/TableRow'
-import Modal from '@mui/material/Modal'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 
 import { StyledDeleteButton, StyledUpdateButton } from 'src/views/icons'
 
 import 'react-datepicker/dist/react-datepicker.css'
 import * as XLSX from 'xlsx'
 
-// switch button
-
 import DataTable from 'react-data-table-component'
-import TextField from '@mui/material/TextField'
 
-// ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
 import { useEffect, useState } from 'react'
-import AdsForm from 'src/components/Model/advertisement'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { ChangeAdvertiseStatus, fetchAdsdata } from 'src/store/features/advertiseSlice'
 import { fetchClientData } from 'src/store/features/clientSlice'
 
-import Magnify from 'mdi-material-ui/Magnify'
-import InputAdornment from '@mui/material/InputAdornment'
 import { SiMicrosoftexcel } from 'react-icons/si'
-
-// import IosShareIcon from '@mui/icons-material/IosShare'
-
-// table
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    color: theme.palette.common.white,
-    backgroundColor: theme.palette.common.black
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14
-  }
-}))
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.action.hover
-  },
-
-  // hide last border
-  '&:last-of-type td, &:last-of-type th': {
-    border: 0
-  }
-}))
+import AdsForm from './AdsForm'
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -65,11 +27,6 @@ const Active = styled('p')(() => ({
 const InActive = styled('p')(() => ({
   color: 'red'
 }))
-
-// const Button = styled('button')(() => ({
-//   padding: '10px',
-//   backgroundColor: 'blue'
-// }))
 
 const style = {
   position: 'absolute',
@@ -86,30 +43,29 @@ const style = {
 }
 
 const Advertisement = () => {
-  // ** State
-
+  // ----------------------Redux Store --------------------
   const dispatch = useDispatch()
-
   const data = useSelector(state => state.advertiseData.data)
-
   const clientData = useSelector(state => state.clientData)
 
   // const { data, loading, error } = advertiseData
 
+  // ---------------------- Use State --------------------
   const [getid, setGetId] = useState('')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState([])
 
+  //--------------------- Open & Close From --------------------
   const handleOpen = id => {
     setGetId(id)
     setOpen(true)
   }
-  const singleAds = data && data?.find(i => i.advertiseId === getid)
-
   const handleClose = () => setOpen(false)
 
-  const label = { inputProps: { 'aria-label': 'Size switch demo' } }
+  const singleAds = data && data?.find(i => i.advertiseId === getid)
+
+  // const label = { inputProps: { 'aria-label': 'Size switch demo' } }
 
   const findUserName = id => {
     const user = clientData.data.find(item => item.clientId == id)
@@ -121,6 +77,7 @@ const Advertisement = () => {
     }
   }
 
+  //------------------------React Data Table -------------------------
   const columns = [
     {
       name: 'Sr.No',
@@ -129,7 +86,8 @@ const Advertisement = () => {
     },
     {
       name: 'Client Name',
-      selector: row => findUserName(row.clientId)
+      selector: row => findUserName(row.clientId),
+      wrap: true
     },
     {
       name: 'Phone No.',
@@ -137,11 +95,13 @@ const Advertisement = () => {
     },
     {
       name: 'Business Name',
-      selector: row => row.businessName
+      selector: row => row.businessName,
+      wrap: true
     },
     {
       name: 'URL',
-      selector: row => row.businessURL
+      selector: row => row.businessURL,
+      wrap: true
     },
     {
       name: 'Page',
@@ -165,12 +125,13 @@ const Advertisement = () => {
       selector: row => (row.isActive ? <Active>Active</Active> : <InActive>Inactive</InActive>)
     },
     {
-      name: 'Update',
-      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.advertiseId)} />
-    },
-    {
-      name: 'Delete',
-      cell: row => <StyledDeleteButton onClick={id => handleDelete(row.advertiseId)} />
+      name: 'Action',
+      cell: row => (
+        <>
+          <StyledUpdateButton onClick={id => handleOpen(row.advertiseId)} /> &nbsp; &nbsp;{' '}
+          <StyledDeleteButton onClick={id => handleDelete(row.advertiseId)} />
+        </>
+      )
     }
   ]
 
@@ -184,6 +145,7 @@ const Advertisement = () => {
     }
   }
 
+  //--------------------------------- Use Effects --------------------
   useEffect(() => {
     dispatch(fetchClientData())
     dispatch(fetchAdsdata())
@@ -193,8 +155,6 @@ const Advertisement = () => {
     const result = data.filter(item => {
       const businessName = item.businessName.toLowerCase().includes(search.toLocaleLowerCase())
       const businessURL = item.businessURL.toLowerCase().includes(search.toLocaleLowerCase())
-
-      // const country = item.countryName.toLowerCase().includes(search.toLocaleLowerCase())
 
       const phoneNumber = item.phoneNumber.toLowerCase().includes(search.toLocaleLowerCase())
 
@@ -220,7 +180,11 @@ const Advertisement = () => {
     <>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='Advertisement Report' titleTypographyProps={{ variant: 'h6' }} />
+          <CardHeader
+            title='Advertisements Report'
+            titleTypographyProps={{ variant: 'h6' }}
+            sx={{ textAlign: 'center' }}
+          />
 
           <DataTable
             customStyles={tableHeaderstyle}

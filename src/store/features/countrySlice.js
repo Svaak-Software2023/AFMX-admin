@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postCounrtyData, getCountryData, updateCountryData } from '../apiServices'
-import axios from 'axios'
+import { postCounrtyData, getCountryData, updateCountryData } from '../ApiServices/regionService'
 
 const initialState = {
   data: [],
@@ -35,9 +34,10 @@ export const CreateCountry = createAsyncThunk('form/postCountryData', async (dat
 //Update country
 export const updateCountry = createAsyncThunk('update/updateCountries', async ({ id, data }, { rejectWithValue }) => {
   try {
-    const country = await updateCountryData(id, data)
+    const updateCountry = await updateCountryData(id, data)
+    const country = await getCountryData()
 
-    return country.getUpdateResponse
+    return country.getResponse
   } catch (error) {
     return rejectWithValue(error.message)
   }
@@ -68,23 +68,30 @@ export const countrySlice = createSlice({
         state.error = action.error.message
       }) //Create New Country
       .addCase(CreateCountry.pending, state => {
+        state.loading = true
         state.status = 'loading'
       })
-      .addCase(CreateCountry.fulfilled, state => {
+      .addCase(CreateCountry.fulfilled, (state, action) => {
+        state.data = action.payload
+        state.loading = false
         state.status = 'succeeded'
       })
       .addCase(CreateCountry.rejected, (state, action) => {
+        state.loading = false
         state.status = 'failed'
         state.error = action.error.message
       }) // Update Country
       .addCase(updateCountry.pending, state => {
+        state.loading = true
         state.status = 'loading'
       })
       .addCase(updateCountry.fulfilled, (state, action) => {
+        state.loading = false
         state.status = 'succeeded'
         state.data = action.payload
       })
       .addCase(updateCountry.rejected, (state, action) => {
+        state.loading = false
         state.status = 'failed'
         state.error = action.error.message
       })

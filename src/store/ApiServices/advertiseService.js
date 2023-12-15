@@ -29,8 +29,6 @@ export const updateAdvertiseData = async (id, updatedAdvertise) => {
 //Change Advertise Status
 export const ChangeAdvertiseData = async (id, changedAdvertise) => {
   try {
-    console.log(`id: ${id}, data: ${JSON.stringify(changedAdvertise)}`)
-
     const response = await axios.patch(`advertise-delete/${id}`, changedAdvertise)
     const data = await response.data
     console.log(data)

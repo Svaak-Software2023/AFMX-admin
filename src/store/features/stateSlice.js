@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postStateData, getStateData, updateStateData } from '../apiServices'
+import { postStateData, getStateData, updateStateData } from '../ApiServices/regionService'
 
 const initialState = {
   data: [],
@@ -9,17 +9,6 @@ const initialState = {
   status: 'idle'
 }
 
-// Create a new state
-export const createState = createAsyncThunk('form/postStateData', async (data, { rejectWithValue }) => {
-  try {
-    const newState = await postStateData(data)
-
-    return newState
-  } catch (error) {
-    return rejectWithValue(error.message)
-  }
-})
-
 //Get State Details
 export const getState = createAsyncThunk('get/getStateData', async () => {
   try {
@@ -28,6 +17,18 @@ export const getState = createAsyncThunk('get/getStateData', async () => {
     return state.getResponse
   } catch (error) {
     throw error.message
+  }
+})
+
+// Create a new state
+export const createState = createAsyncThunk('form/postStateData', async (data, { rejectWithValue }) => {
+  try {
+    const newState = await postStateData(data)
+    const state = await getStateData()
+
+    return state.getResponse
+  } catch (error) {
+    return rejectWithValue(error.message)
   }
 })
 
@@ -64,7 +65,7 @@ export const stateSlice = createSlice({
       })
       .addCase(createState.fulfilled, (state, action) => {
         state.status = 'succeeded'
-        state.formData = action.payload
+        state.data = action.payload
       })
       .addCase(createState.rejected, (state, action) => {
         state.status = 'failed'

@@ -1,38 +1,39 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import TextField from '@mui/material/TextField'
-import InputLabel from '@mui/material/InputLabel'
-import Grid from '@mui/material/Grid'
+import {
+  Card,
+  CardContent,
+  TextField,
+  InputLabel,
+  Grid,
+  CardHeader,
+  FormControl,
+  Select,
+  MenuItem,
+  Button
+} from '@mui/material'
 import React, { useState } from 'react'
-import CardHeader from '@mui/material/CardHeader'
-import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import Button from '@mui/material/Button'
+
 import { styled } from '@mui/material/styles'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateCountry } from 'src/store/features/countrySlice'
-import { getCountry } from 'src/store/features/countrySlice'
-import { useRouter } from 'next/router'
+import { updateCountry, getCountry } from 'src/store/features/countrySlice'
 
 const Form = styled('form')(({ theme }) => ({
   maxWidth: '100%',
   padding: theme.spacing(12),
   borderRadius: theme.shape.borderRadius,
 
-  // border: `1px solid ${theme.palette.divider}`,
   overflow: 'hidden'
 }))
 
-const CountryModel = props => {
-  const { handleClose, getid } = props
+const CountryModel = ({ handleClose, getid, showSuccessMessage }) => {
+  // --------------- Redux Store -----------------------
   const dispatch = useDispatch()
   const countryData = useSelector(state => state.countryData.data)
 
   const singleCountry = countryData?.find(i => i.countryId === getid)
 
-  const countryId = singleCountry.countryId
+  const { countryId } = singleCountry
 
+  // --------------------------- Use State -------------------------------
   const [editedCountry, setEditedCountry] = useState({
     countryName: singleCountry.countryName,
     countryShortName: singleCountry.countryShortName,
@@ -41,6 +42,7 @@ const CountryModel = props => {
     isActive: singleCountry.isActive
   })
 
+  // -------------------------- Handle Change --------------------------------
   const handleTextFieldChange = (field, value) => {
     setEditedCountry(prev => ({
       ...prev,
@@ -48,18 +50,17 @@ const CountryModel = props => {
     }))
   }
 
+  //------------------------------Update Action --------------------------------
   const handleUpdate = e => {
     e.preventDefault()
-    try {
-      dispatch(updateCountry({ id: countryId, data: editedCountry }))
-      handleClose()
 
-      dispatch(getCountry())
-    } catch (error) {
-      throw error
-    }
+    dispatch(updateCountry({ id: countryId, data: editedCountry }))
+    dispatch(getCountry())
+    handleClose()
+    showSuccessMessage('Country updated successfully')
   }
 
+  //-----------------------------------//---------------------------------------------
   return (
     <>
       <Card>
@@ -110,7 +111,7 @@ const CountryModel = props => {
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Button variant='contained' sx={{ marginRight: 3.5 }} onClick={handleUpdate}>
+                  <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
                     Save Changes
                   </Button>
                 </Grid>

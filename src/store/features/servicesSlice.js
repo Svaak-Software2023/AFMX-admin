@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getServicesData } from '../ApiServices/servicesService'
+import { getServicesData, postServiceData } from '../ApiServices/servicesService'
 
 const initialState = {
   data: [],
+  formData: [],
   loading: false,
   error: null
 }
@@ -18,12 +19,28 @@ export const getAllServices = createAsyncThunk('form/getServiceData', async () =
   }
 })
 
+//Create New Service
+export const createNewService = createAsyncThunk('form/postService', async (formData, { rejectWithValue }) => {
+  try {
+    const services = await postServiceData(formData)
+
+    return services
+
+    // const getservice = await getServicesData()
+    // console.log(getservice)
+
+    // return getservice
+  } catch (error) {
+    return rejectWithValue(error.message)
+  }
+})
+
 export const servicesSlice = createSlice({
   name: 'services',
   initialState,
 
   extraReducers: builder => {
-    builder
+    builder //Get All Services
       .addCase(getAllServices.pending, state => {
         state.loading = true
       })
@@ -32,6 +49,18 @@ export const servicesSlice = createSlice({
         state.data = action.payload
       })
       .addCase(getAllServices.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      }) // Create New Service
+      .addCase(createNewService.pending, state => {
+        state.loading = true
+      })
+      .addCase(createNewService.fulfilled, (state, action) => {
+        state.loading = false
+        state.data = action.payload
+        state.formData = action.payload
+      })
+      .addCase(createNewService.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message
       })

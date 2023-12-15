@@ -2,8 +2,9 @@
 import Grid from '@mui/material/Grid'
 
 // ** Icons Imports
-import Poll from 'mdi-material-ui/Poll'
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd'
+import AccountOutline from 'mdi-material-ui/AccountOutline'
+
+import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred'
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 import BriefcaseVariantOutline from 'mdi-material-ui/BriefcaseVariantOutline'
 
@@ -14,52 +15,44 @@ import CardStatisticsVerticalComponent from 'src/@core/components/card-statistic
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
 // ** Demo Components Imports
-import Table from 'src/views/dashboard/Table'
 import Trophy from 'src/views/dashboard/Trophy'
-import TotalEarning from 'src/views/dashboard/TotalEarning'
-import StatisticsCard from 'src/views/dashboard/StatisticsCard'
-import WeeklyOverview from 'src/views/dashboard/WeeklyOverview'
-import DepositWithdraw from 'src/views/dashboard/DepositWithdraw'
-import SalesByCountries from 'src/views/dashboard/SalesByCountries'
-import { useSelector } from 'react-redux'
+
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchClientData } from 'src/store/features/clientSlice'
+import { useEffect } from 'react'
 
 const Dashboard = () => {
+  const dispatch = useDispatch()
+
+  const clientData = useSelector(state => state.clientData.data)
+
+  useEffect(() => {
+    dispatch(fetchClientData())
+  }, [dispatch])
+
   return (
     <ApexChartWrapper>
-      <Grid container spacing={6}>
-        <Grid item xs={12} md={4}>
+      <Grid container spacing={4}>
+        <Grid item xs={4} md={4}>
           <Trophy />
         </Grid>
-        <Grid item xs={12} md={8}>
-          <StatisticsCard />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <WeeklyOverview />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <TotalEarning />
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <Grid container spacing={6}>
+        <Grid item xs={8} md={8}>
+          <Grid container spacing={4}>
             <Grid item xs={6}>
               <CardStatisticsVerticalComponent
-                stats='$25.6k'
-                icon={<Poll />}
-                color='success'
-                trendNumber='+42%'
-                title='Total Profit'
-                subtitle='Weekly Profit'
+                stats={clientData.length}
+                icon={<AccountOutline />}
+                title='Clients'
+                subtitle='Total Client'
               />
             </Grid>
             <Grid item xs={6}>
               <CardStatisticsVerticalComponent
-                stats='$78'
-                title='Refunds'
-                trend='negative'
+                stats='0'
+                title='Complain Portal'
                 color='secondary'
-                trendNumber='-15%'
-                subtitle='Past Month'
-                icon={<CurrencyUsd />}
+                subtitle='Pending'
+                icon={<ReportGmailerrorredIcon />}
               />
             </Grid>
             <Grid item xs={6}>
@@ -84,15 +77,6 @@ const Dashboard = () => {
               />
             </Grid>
           </Grid>
-        </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          <SalesByCountries />
-        </Grid>
-        <Grid item xs={12} md={12} lg={8}>
-          <DepositWithdraw />
-        </Grid>
-        <Grid item xs={12}>
-          <Table />
         </Grid>
       </Grid>
     </ApexChartWrapper>

@@ -27,32 +27,7 @@ const Form = styled('form')(({ theme }) => ({
   overflow: 'hidden'
 }))
 
-const ImgStyled = styled('img')(({ theme }) => ({
-  width: 120,
-  height: 120,
-  marginRight: theme.spacing(6.25),
-  borderRadius: theme.shape.borderRadius
-}))
-
-const ButtonStyled = styled(Button)(({ theme }) => ({
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    textAlign: 'center'
-  }
-}))
-
-const ResetButtonStyled = styled(Button)(({ theme }) => ({
-  marginLeft: theme.spacing(4.5),
-  [theme.breakpoints.down('sm')]: {
-    width: '100%',
-    marginLeft: 0,
-    textAlign: 'center',
-    marginTop: theme.spacing(4)
-  }
-}))
-
-const AdsForm = props => {
-  const { singleAds, handleClose } = props
+const AdsForm = ({ singleAds, handleClose }) => {
   const clientData = useSelector(state => state.clientData)
   const dispatch = useDispatch()
 

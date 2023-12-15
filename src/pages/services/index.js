@@ -26,15 +26,17 @@ import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
 
 import Typography from '@mui/material/Typography'
 import DataTable from 'react-data-table-component'
-
+import AddIcon from '@mui/icons-material/Add'
 import 'react-datepicker/dist/react-datepicker.css'
 import { useDispatch, useSelector } from 'react-redux'
-import { createState, getState, updateState } from 'src/store/features/stateSlice'
 import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
 import { getServiceDepartment } from 'src/store/features/serviceDepartmentSlice'
-import { getAllServices } from 'src/store/features/servicesSlice'
+import { createNewService, getAllServices } from 'src/store/features/servicesSlice'
 import { useRef } from 'react'
+import Backdrop from '@mui/material/Backdrop'
+import Menu from '@mui/material/Menu'
+import Model from './model'
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -88,16 +90,20 @@ const FormLayoutsSeparator = () => {
   const serviceDepartmentData = useSelector(state => state.serviceDepartmentData.data)
   const servicesData = useSelector(state => state.servicesData.data)
 
-  console.log(servicesData)
-
   const [filter, setFilter] = useState([])
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const [getid, setGetId] = useState('')
+  const [showform, setShowForm] = useState(false)
+  const [file, setFile] = useState(null)
 
   const handleOpen = id => {
     setGetId(id)
     setOpen(true)
+  }
+
+  const handleForm = () => {
+    setShowForm(true)
   }
 
   const [successMessage, setSuccessMessage] = useState('')
@@ -109,17 +115,16 @@ const FormLayoutsSeparator = () => {
     }, 3000)
   }
 
-  const handleClose = () => setOpen(false)
+  const handleClose = () => {
+    setOpen(false)
+    setShowForm(false)
+  }
 
   const [formData, setFormData] = useState({
     serviceDepartmentId: '',
     serviceName: '',
-    serviceImage: [],
-    serviceDescription: '',
-    isActive: true
+    serviceDescription: ''
   })
-
-  console.log('Form data: ', formData)
 
   useEffect(() => {
     dispatch(getAllServices())
@@ -134,56 +139,46 @@ const FormLayoutsSeparator = () => {
     })
   }
 
-  const onChange = async event => {
-    const { files } = event.target
+  // const onChange = event => {
+  //   const data = event.target.files[0]
 
-    if (files && files.length !== 0) {
-      const readImage = async file => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader()
+  // const newFormData = new FormData()
+  // newFormData.append('serviceImage', data)
+  // Object.entries(data).forEach((key, value) => {
+  //   newFormData.append(key, value)
+  // })
 
-          reader.onload = () => {
-            resolve(reader.result)
-          }
+  // setFormData(prevFormData => ({
+  //   ...prevFormData,
+  //   serviceImage: [...prevFormData.serviceImage, ...newFormData.getAll('serviceImage')]
+  // }))
 
-          reader.onerror = error => {
-            reject(error)
-          }
-
-          reader.readAsDataURL(file)
-        })
-      }
-
-      try {
-        const dataURLs = await Promise.all(Array.from(files, readImage))
-
-        setFormData(prevFormData => ({
-          ...prevFormData,
-          serviceImage: [...prevFormData.serviceImage, ...dataURLs]
-        }))
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
-        }
-      } catch (error) {
-        console.error('Error reading files:', error)
-      }
-    }
-  }
+  // serviceImage: [...prevFormData.serviceImage, data]
+  // }
 
   const handleSubmit = e => {
     e.preventDefault()
-    try {
-      dispatch(createState(formData))
-      setFormData({})
-      showSuccessMessage('Form submitted successfully')
-      dispatch(getAllServices())
-    } catch (error) {
-      console.error('Error While submitting Form.', error)
-    }
+
+    const newFormData = new FormData()
+    newFormData.append('serviceImage', file)
+    Object.entries(formData).forEach(([key, value]) => {
+      newFormData.append(key, value)
+    })
+
+    dispatch(createNewService(newFormData))
+    setFormData({
+      serviceDepartmentId: '',
+      serviceName: '',
+      serviceDescription: '',
+      isActive: true
+    })
+    showSuccessMessage('Form submitted successfully')
+    dispatch(getAllServices())
+    handleClose()
   }
 
   useEffect(() => {
-    const result = servicesData.filter(item => {
+    const result = servicesData?.filter(item => {
       const serviceDepartmentId = item.serviceName.toLowerCase().includes(search.toLowerCase())
       const serviceName = item.serviceName.toLowerCase().includes(search.toLowerCase())
 
@@ -229,11 +224,12 @@ const FormLayoutsSeparator = () => {
     },
     {
       name: 'Update',
-      cell: row => <StyledUpdateButton onClick={id => handleOpen(row.serviceId)} />
-    },
-    {
-      name: 'Delete',
-      cell: row => <StyledDeleteButton onClick={id => handleUpdate(row.serviceId)} />
+      cell: row => (
+        <>
+          <StyledUpdateButton onClick={id => handleOpen(row.serviceId)} /> &nbsp; &nbsp;
+          <StyledDeleteButton onClick={id => handleUpdate(row.serviceId)} />
+        </>
+      )
     }
   ]
 
@@ -270,104 +266,126 @@ const FormLayoutsSeparator = () => {
     <>
       {/* Form */}
       <Card>
-        <CardHeader title='AFMX State' titleTypographyProps={{ variant: 'h6' }} />
+        <Grid container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <CardHeader title='AFMX Services' titleTypographyProps={{ variant: 'h6' }} />
+          <Box>
+            <ButtonStyled onClick={handleForm} sx={{ mr: 1 }} variant='outlined'>
+              <AddIcon /> Add Services
+            </ButtonStyled>
+          </Box>
+        </Grid>
         <Divider sx={{ margin: 0 }} />
 
-        <form onSubmit={handleSubmit}>
-          <CardContent>
-            <Grid container spacing={5}>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Select Service Department</InputLabel>
-                  <Select
-                    label='Select Service Department'
-                    name='serviceDepartmentId'
-                    value={formData.serviceDepartmentId}
-                    onChange={handleChange}
-                  >
-                    {serviceDepartmentData.map(item => (
-                      <MenuItem key={item.serviceDepartmentId} value={item.serviceDepartmentId}>
-                        {item.serviceDepartmentName?.toUpperCase()}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+        <Modal
+          sx={{ maxHeight: '80%', maxWidth: '100%' }}
+          aria-labelledby='transition-modal-title'
+          aria-describedby='transition-modal-description'
+          open={showform}
+          onClose={handleClose}
+        >
+          <Box sx={{ ...style }}>
+            <form onSubmit={handleSubmit}>
+              <Card>
+                <CardContent>
+                  <Grid container spacing={5}>
+                    <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth>
+                        <InputLabel>Select Service Department</InputLabel>
+                        <Select
+                          label='Select Service Department'
+                          name='serviceDepartmentId'
+                          value={formData.serviceDepartmentId}
+                          onChange={handleChange}
+                        >
+                          {serviceDepartmentData.map(item =>
+                            item.isActive == true ? (
+                              <MenuItem key={item.serviceDepartmentId} value={item.serviceDepartmentId}>
+                                {item.serviceDepartmentName?.toUpperCase()}
+                              </MenuItem>
+                            ) : null
+                          )}
+                        </Select>
+                      </FormControl>
+                    </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label=' Service Name'
-                  placeholder='Enter  Service Name'
-                  name='serviceName'
-                  value={formData.serviceName}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label=' Service Description'
-                  placeholder='Enter  Service Description'
-                  name='serviceDescription'
-                  value={formData.serviceDescription}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {formData.serviceImage?.map((item, index) => (
-                    <ImgStyled key={index} src={item} alt={item} />
-                  ))}
-                  <Box>
-                    <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
-                      Upload Image
-                      <input
-                        hidden
-                        type='file'
-                        onChange={onChange}
-                        name='serviceImage'
-                        accept='image/png, image/jpeg'
-                        id='account-settings-upload-image'
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label=' Service Name'
+                        placeholder='Enter  Service Name'
+                        name='serviceName'
+                        value={formData.serviceName}
+                        onChange={handleChange}
                       />
-                    </ButtonStyled>
-                    <ResetButtonStyled color='error' variant='outlined' onClick={() => setImgSrc('')}>
-                      Reset
-                    </ResetButtonStyled>
-                    <Typography variant='body2' sx={{ marginTop: 5 }}>
-                      Allowed PNG or JPEG.
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
+                    </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select label='Status' defaultValue={true} name='isActive' onChange={handleChange}>
-                    <MenuItem value={true}>Active</MenuItem>
-                    <MenuItem value={false}>Inactive</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </CardContent>
-          <Divider sx={{ margin: 0 }} />
-          <CardActions>
-            <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
-              Submit
-            </Button>
-          </CardActions>
-        </form>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label=' Service Description'
+                        placeholder='Enter  Service Description'
+                        name='serviceDescription'
+                        value={formData.serviceDescription}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {formData.serviceImage?.map((item, index) => (
+                          <ImgStyled key={index} src={item} alt={item} />
+                        ))}
+                        <Box>
+                          <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
+                            Upload Image
+                            <input
+                              hidden
+                              type='file'
+                              onChange={e => setFile(e.target.files[0])}
+                              name='serviceImage'
+                              id='account-settings-upload-image'
+                            />
+                          </ButtonStyled>
+                          <ResetButtonStyled color='error' variant='outlined' onClick={() => setImgSrc('')}>
+                            Reset
+                          </ResetButtonStyled>
+                          <Typography variant='body2' sx={{ marginTop: 5 }}>
+                            Allowed PNG or JPEG.
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth>
+                        <InputLabel>Status</InputLabel>
+                        <Select label='Status' defaultValue={true} name='isActive' onChange={handleChange}>
+                          <MenuItem value={true}>Active</MenuItem>
+                          <MenuItem value={false}>Inactive</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+                <CardActions>
+                  <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
+                    Submit
+                  </Button>
+                </CardActions>
+              </Card>
+            </form>
+          </Box>
+        </Modal>
       </Card>
 
       {/* Table */}
       <Grid item xs={12} sx={{ marginTop: '10px' }}>
         <Card>
-          <CardHeader title='State List' titleTypographyProps={{ variant: 'h6' }} />
-
+          <CardHeader
+            title='State List'
+            titleTypographyProps={{ variant: 'h6' }}
+            sx={{ fontWeight: 'bolder', textAlign: 'center' }}
+          />
           <DataTable
             customStyles={tableHeaderstyle}
             columns={columns}
@@ -418,7 +436,9 @@ const FormLayoutsSeparator = () => {
         aria-labelledby='parent-modal-title'
         aria-describedby='parent-modal-description'
       >
-        <Box sx={{ ...style }}>{/* <StateModel singleState={singleState} handleClose={handleClose} /> */}</Box>
+        <Box sx={{ ...style }}>
+          <Model handleClose={handleClose} />
+        </Box>
       </Modal>
 
       <Snackbar

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { postCityData, getCityData, updateCityData } from '../apiServices'
+import { postCityData, getCityData, updateCityData } from '../ApiServices/regionService'
 
 const initialState = {
   data: [],

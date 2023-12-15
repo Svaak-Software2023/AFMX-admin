@@ -29,6 +29,8 @@ export const getCountryData = async () => {
 // Update country
 export const updateCountryData = async (id, updatedCountry) => {
   try {
+    console.log('Service Data', updatedCountry)
+
     const response = await axios.put(`/update-country/${id}`, updatedCountry)
     const data = await response.data
 

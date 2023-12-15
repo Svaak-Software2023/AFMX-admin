@@ -22,6 +22,7 @@ import DataTable from 'react-data-table-component'
 import 'react-datepicker/dist/react-datepicker.css'
 import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
 import { useDispatch, useSelector } from 'react-redux'
+import AddIcon from '@mui/icons-material/Add'
 
 import Modal from '@mui/material/Modal'
 import Alert from '@mui/material/Alert'
@@ -57,6 +58,13 @@ const style = {
   width: '80%'
 }
 
+const ButtonStyled = styled(Button)(({ theme }) => ({
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    textAlign: 'center'
+  }
+}))
+
 const FormLayoutsSeparator = () => {
   const [formData, setFormData] = useState({
     serviceDepartmentName: ''
@@ -68,6 +76,7 @@ const FormLayoutsSeparator = () => {
 
   const [getid, setGetId] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [isFormVisible, setFormVisible] = useState(false)
 
   const dispatch = useDispatch()
   const serviceDepartmentData = useSelector(state => state.serviceDepartmentData.data)
@@ -101,8 +110,8 @@ const FormLayoutsSeparator = () => {
       setFormData({
         serviceDepartmentName: ''
       })
+      setFormVisible(false)
       ShowSuccessMessage('submitted successfully')
-
       dispatch(getServiceDepartment())
     } catch (error) {
       console.error('Error While Submitting Form', error)
@@ -128,9 +137,10 @@ const FormLayoutsSeparator = () => {
     },
 
     {
-      name: 'City',
+      name: 'Service Department Name',
       selector: row => row.serviceDepartmentName,
-      sortable: true
+      sortable: true,
+      wrap: true
     },
 
     {
@@ -188,39 +198,55 @@ const FormLayoutsSeparator = () => {
     dispatch(getServiceDepartment())
   }, [dispatch])
 
+  const handleAddForm = () => {
+    setFormVisible(prev => !prev)
+  }
+
   return (
     <>
       {/* Form */}
       <Card>
-        <CardHeader title='AFMX Service Department' titleTypographyProps={{ variant: 'h6' }} />
+        <Grid container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <CardHeader title='AFMX Service Department' titleTypographyProps={{ variant: 'h6' }} />
+          <Box>
+            <ButtonStyled onClick={handleAddForm} sx={{ mr: 1 }} variant='outlined'>
+              <AddIcon /> Add Services
+            </ButtonStyled>
+          </Box>
+        </Grid>
         <Divider sx={{ margin: 0 }} />
-
-        <form onSubmit={handleSubmit}>
-          <CardContent>
-            <Grid container spacing={5}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label='Department Name'
-                  name='serviceDepartmentName'
-                  placeholder=' Enter Department Name'
-                  onChange={handleChange}
-                />
+        {isFormVisible && (
+          <form onSubmit={handleSubmit}>
+            <CardContent>
+              <Grid container spacing={5}>
+                <Grid item xs={12} sm={12}>
+                  <TextField
+                    fullWidth
+                    label='Department Name'
+                    name='serviceDepartmentName'
+                    placeholder=' Enter Department Name'
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <CardActions sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Button size='medium' type='submit' sx={{ mr: 2 }} variant='contained'>
+                    Add Department
+                  </Button>
+                </CardActions>
               </Grid>
-              <CardActions>
-                <Button size='large' type='submit' sx={{ mr: 2 }} variant='contained'>
-                  Add Department
-                </Button>
-              </CardActions>
-            </Grid>
-          </CardContent>
-        </form>
+            </CardContent>
+          </form>
+        )}
       </Card>
 
       {/*City Table */}
-      <Grid item xs={12}>
+      <Grid item xs={12} mt={2}>
         <Card>
-          <CardHeader title='Service Department List' titleTypographyProps={{ variant: 'h6' }} />
+          <CardHeader
+            title='Service Department List'
+            titleTypographyProps={{ variant: 'h6' }}
+            sx={{ fontWeight: 'bolder', textAlign: 'center' }}
+          />
 
           <DataTable
             customStyles={tableHeaderstyle}
