@@ -1,22 +1,20 @@
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import Link from 'next/link'
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown'
-import Grid from '@mui/material/Grid'
 
 const cardStyle = {
   cursor: 'pointer'
 }
 
 const ComplainPortalComponent = props => {
-  const { title, color, icon, stats, moreInfoColor } = props
+  const { id, title, color, icon, stats, moreInfoColor } = props
 
   return (
-    <Link href='/complainPortal' passHref>
+    <Link href='/complainPortal/[id]' as={`/complainPortal/${id}`} passHref>
       <Card sx={{ ...cardStyle, background: `${color}` }}>
         <CardContent style={{ padding: '0' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignContent: 'center', margin: '30px' }}>
@@ -27,7 +25,7 @@ const ComplainPortalComponent = props => {
               <Typography sx={{ fontWeight: 600, fontSize: '0.975rem' }}>{title}...</Typography>
             </Box>
 
-            <Box sx={{}}>{icon}</Box>
+            <Box>{icon}</Box>
           </Box>
           <Box sx={{ backgroundColor: `${moreInfoColor}`, padding: '5px' }}>
             <Typography

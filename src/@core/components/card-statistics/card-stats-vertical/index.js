@@ -10,16 +10,16 @@ const cardStyle = {
   cursor: 'pointer',
   transition: ' 0.3s ease',
   '&:hover': {
-    backgroundColor: 'lightgrey'
+    backgroundColor: '#28243D'
   }
 }
 
 const CardStatsVertical = props => {
   // ** Props
-  const { title, subtitle, color, icon, stats } = props
+  const { title, subtitle, color, icon, stats, link } = props
 
   return (
-    <Link href='/complainPortal' passHref>
+    <Link href={`/${link}`} passHref>
       <Card sx={{ ...cardStyle }}>
         <CardContent>
           <Box sx={{ display: 'flex', marginBottom: 5.5, alignItems: 'center', justifyContent: 'center' }}>

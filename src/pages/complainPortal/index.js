@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Grid from '@mui/material/Grid'
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
 import DoneIcon from '@mui/icons-material/Done'
@@ -7,8 +7,26 @@ import TaskIcon from '@mui/icons-material/Task'
 import ComplainPortalComponent from 'src/@core/components/complain-portal'
 import Card from '@mui/material/Card'
 import { CardHeader } from '@mui/material'
+import { useSelector, useDispatch } from 'react-redux'
+import { getComplaints } from 'src/store/features/complaintsSlice'
 
-const index = () => {
+const Index = () => {
+  //-------------------------------Redux Store -------------------------------
+
+  const dispatch = useDispatch()
+
+  const complaintData = useSelector(state => state.complaintsData.data)
+
+  //Closed Complaints Count
+  const closedComplaints = complaintData?.filter(item => item.complaintStatusId === 6)
+
+  const inProgressComplaints = complaintData?.filter(item => item.complaintStatusId === 4)
+
+  //-------------------------------------Use Effects -----------------------
+  useEffect(() => {
+    dispatch(getComplaints())
+  }, [dispatch])
+
   return (
     <>
       <Card>
@@ -23,7 +41,8 @@ const index = () => {
           <Grid container spacing={4}>
             <Grid item xs={6}>
               <ComplainPortalComponent
-                stats={54}
+                id={1}
+                stats={complaintData.length}
                 icon={<QuestionAnswerIcon sx={{ fontSize: '5.2rem', color: '#3F63B945' }} />}
                 title='Total Complaints'
                 color='#0CB6DB;'
@@ -32,7 +51,8 @@ const index = () => {
             </Grid>
             <Grid item xs={6}>
               <ComplainPortalComponent
-                stats='0'
+                id={2}
+                stats={closedComplaints ? closedComplaints.length : 0}
                 title='Complaints Have Been Closed'
                 color='#31E504;'
                 icon={<DoneIcon sx={{ fontSize: '5.2rem', color: '#208B0652' }} />}
@@ -41,7 +61,8 @@ const index = () => {
             </Grid>
             <Grid item xs={6}>
               <ComplainPortalComponent
-                stats='862'
+                id={3}
+                stats={inProgressComplaints ? inProgressComplaints.length : 0}
                 color='#FA9E1C'
                 title='Complaints in progress'
                 icon={<CachedIcon sx={{ fontSize: '5.2rem', color: '#F05E1666' }} />}
@@ -50,6 +71,7 @@ const index = () => {
             </Grid>
             <Grid item xs={6}>
               <ComplainPortalComponent
+                id={4}
                 stats='15'
                 color='#9F0E0E'
                 title='Reports'
@@ -64,4 +86,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Index

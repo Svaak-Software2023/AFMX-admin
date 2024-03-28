@@ -106,7 +106,7 @@ const AdsForm = ({ singleAds, handleClose }) => {
                     <InputLabel>Page</InputLabel>
                     <Select
                       label='Page'
-                      defaultValue={editedAds.advertisePage?.toUpperCase()}
+                      value={editedAds.advertisePage}
                       onChange={e => handleChange('advertisePage', e.target.value)}
                     >
                       <MenuItem value='Home '>Home Page</MenuItem>
@@ -122,7 +122,7 @@ const AdsForm = ({ singleAds, handleClose }) => {
                     <InputLabel>Position</InputLabel>
                     <Select
                       label='Position'
-                      defaultValue={editedAds.advertiseLocation?.toUpperCase()}
+                      value={editedAds.advertiseLocation}
                       onChange={e => handleChange('advertiseLocation', e.target.value)}
                     >
                       <MenuItem value='top'>Top</MenuItem>

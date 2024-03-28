@@ -53,6 +53,7 @@ const Dashboard = () => {
                 color='secondary'
                 subtitle='Pending'
                 icon={<ReportGmailerrorredIcon />}
+                link='complainPortal'
               />
             </Grid>
             <Grid item xs={6}>

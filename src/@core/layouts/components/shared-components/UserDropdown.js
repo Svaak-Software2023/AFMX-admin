@@ -68,7 +68,7 @@ const UserDropdown = () => {
   }
 
   useEffect(() => {
-    const storedData = sessionStorage.getItem('adminData')
+    const storedData = localStorage.getItem('adminData')
 
     if (storedData) {
       const parsedData = JSON.parse(storedData)

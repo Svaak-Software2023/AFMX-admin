@@ -28,7 +28,7 @@ const FormLayoutsIcons = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position='start'>
-                      <AccountOutline />
+                      <AccountOutline style={{ color: 'red' }} />
                     </InputAdornment>
                   )
                 }}

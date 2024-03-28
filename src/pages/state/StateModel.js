@@ -52,12 +52,12 @@ const StateModel = props => {
     }))
   }
 
-  const handleUpdate = async e => {
+  const handleUpdate = e => {
     e.preventDefault()
     try {
-      await dispatch(updateState({ id: stateId, data: editedState }))
+      dispatch(updateState({ id: stateId, data: editedState }))
       handleClose()
-      await dispatch(getState())
+      dispatch(getState())
     } catch (error) {
       throw error
     }

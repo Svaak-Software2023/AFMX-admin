@@ -7,6 +7,8 @@ import cityReducer from '../store/features/citySlice'
 import adminReducer from '../store/features/adminSlice'
 import serviceDepartmentReducer from '../store/features/serviceDepartmentSlice'
 import servicesReducer from '../store/features/servicesSlice'
+import complaintReducer from '../store/features/complaintsSlice'
+import remarkReducer from '../store/features/remarkSlice'
 import thunk from 'redux-thunk'
 
 const rootReducer = {
@@ -17,7 +19,9 @@ const rootReducer = {
   cityData: cityReducer,
   adminData: adminReducer,
   serviceDepartmentData: serviceDepartmentReducer,
-  servicesData: servicesReducer
+  servicesData: servicesReducer,
+  complaintsData: complaintReducer,
+  remarkData: remarkReducer
 }
 
 export const store = configureStore({

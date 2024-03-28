@@ -1,6 +1,6 @@
 // ** React Imports
 import { useEffect, useState } from 'react'
-import { styled } from '@mui/material/styles'
+import { alpha, styled } from '@mui/material/styles'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -35,14 +35,24 @@ import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
 import AddIcon from '@mui/icons-material/Add'
 import StateModel from './StateModel'
+import Switch from '@mui/material/Switch'
+import { pink } from '@mui/material/colors'
+import ApartmentIcon from '@mui/icons-material/Apartment'
+import { Active, InActive, customStyles } from 'src/Common'
 
-const Active = styled('p')(() => ({
-  color: 'green'
+const PinkSwitch = styled(Switch)(({ theme }) => ({
+  '& .MuiSwitch-switchBase.Mui-checked': {
+    color: pink[600],
+    '&:hover': {
+      backgroundColor: alpha(pink[600], theme.palette.action.hoverOpacity)
+    }
+  },
+  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+    backgroundColor: pink[600]
+  }
 }))
 
-const InActive = styled('p')(() => ({
-  color: 'red'
-}))
+const label = { inputProps: { 'aria-label': 'Color switch demo' } }
 
 const style = {
   position: 'absolute',
@@ -61,8 +71,10 @@ const style = {
 const FormLayoutsSeparator = () => {
   //---------------------------Redux Store ------------------------
   const dispatch = useDispatch()
-  const stateData = useSelector(state => state.stateData.data)
+  const stateData = useSelector(state => state.stateData)
   const countryData = useSelector(state => state.countryData.data)
+
+  const { data, loading, status } = stateData
 
   // ------------------------Use State ------------------------
   const [filter, setFilter] = useState([])
@@ -71,6 +83,7 @@ const FormLayoutsSeparator = () => {
   const [getid, setGetId] = useState('')
   const [isFormVisible, setFormVisible] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [toggle, setToggle] = useState(true)
 
   const [formData, setFormData] = useState({
     countryId: '',
@@ -78,6 +91,10 @@ const FormLayoutsSeparator = () => {
 
     isActive: 'true'
   })
+
+  //---------------No. of Active & InActive---------------
+  const activeCountry = data.filter(item => item.isActive == true).length
+  const inactiveCountry = data.filter(item => item.isActive == false).length
 
   //-------------------------------Open & Close Form----------------------------------------------------
   const handleOpen = id => {
@@ -97,6 +114,11 @@ const FormLayoutsSeparator = () => {
     setTimeout(() => {
       setSuccessMessage('')
     }, 3000)
+  }
+
+  //-------------------Handle Switch -------------------
+  const handleSwitch = () => {
+    setToggle(prevToggle => !prevToggle)
   }
 
   // ------------------------------------Handle Change --------------------------------------
@@ -129,7 +151,7 @@ const FormLayoutsSeparator = () => {
   //------------Update----------
   const handleUpdate = async id => {
     try {
-      const data = await stateData.find(i => i.stateId === id)
+      const data = await data?.find(i => i.stateId === id)
       dispatch(updateState({ id: id, data: { ...data, isActive: false } }))
       dispatch(getState())
     } catch (error) {
@@ -139,14 +161,14 @@ const FormLayoutsSeparator = () => {
 
   //-----------------------------Use Effects ---------------------------------
   useEffect(() => {
-    const result = stateData.filter(item => {
+    const result = data.filter(item => {
       const countryId = item.stateName.toLowerCase().includes(search.toLowerCase())
       const stateName = item.stateName.toLowerCase().includes(search.toLowerCase())
 
       return countryId || stateName
     })
     setFilter(result)
-  }, [search, stateData])
+  }, [search, data])
 
   useEffect(() => {
     dispatch(getCountry())
@@ -192,7 +214,6 @@ const FormLayoutsSeparator = () => {
       name: 'Action',
       cell: row => (
         <>
-          {' '}
           <StyledUpdateButton onClick={id => handleOpen(row.stateId)} /> &nbsp; &nbsp;
           <StyledDeleteButton onClick={id => handleUpdate(row.stateId)} />
         </>
@@ -200,17 +221,7 @@ const FormLayoutsSeparator = () => {
     }
   ]
 
-  const tableHeaderstyle = {
-    headCells: {
-      style: {
-        fontWeight: 'bold',
-        fontSize: '14px',
-        backgroundColor: '#ccc'
-      }
-    }
-  }
-
-  const singleState = stateData?.find(i => i.stateId === getid)
+  const singleState = data?.find(i => i.stateId === getid)
 
   //------------------------------------Export Table into Excel ------------------------
   const exportToExcel = () => {
@@ -271,22 +282,16 @@ const FormLayoutsSeparator = () => {
       </Card>
 
       {/*------------------------------Country Table-------------------------------- */}
+      <Typography variant='h6' sx={{ display: 'flex', alignItems: 'center' }}>
+        <ApartmentIcon /> &nbsp; AFMX State List
+      </Typography>
       <Grid item xs={12} sx={{ marginTop: '5px' }}>
         <Card>
-          <CardHeader
-            title='AFMX State List'
-            titleTypographyProps={{ variant: 'h6' }}
-            sx={{ fontWeight: 'bolder', textAlign: 'center' }}
-          />
-
-          <Divider sx={{ margin: '0' }} />
-
           <DataTable
-            customStyles={tableHeaderstyle}
+            customStyles={customStyles}
             columns={columns}
-            data={filter === null ? stateData : filter}
+            data={filter === null ? data : filter}
             pagination
-            selectableRows
             fixedHeader
             selectableRowsHighlight
             highlightOnHover
@@ -307,11 +312,32 @@ const FormLayoutsSeparator = () => {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />
+                  <Box sx={{ display: 'flex', marginLeft: '10px' }}>
+                    <ApartmentIcon sx={{ fontSize: '30px', marginTop: '5px', color: 'skyBlue' }} />
+                    <Box>
+                      <Typography sx={{ fontSize: '1.2rem', textAlign: 'left' }}>{data.length}</Typography>
+                      <Typography sx={{ fontSize: '0.7rem' }}>States</Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', marginLeft: '10px' }}>
+                    <PinkSwitch {...label} onChange={handleSwitch} defaultChecked />
+                    {toggle == true ? (
+                      <Box>
+                        <Typography sx={{ fontSize: '1.2rem', textAlign: 'center' }}>{activeCountry}</Typography>
+                        <Typography sx={{ fontSize: '0.7rem' }}>Active</Typography>
+                      </Box>
+                    ) : (
+                      <Box>
+                        <Typography sx={{ fontSize: '1.2rem', textAlign: 'center' }}>{inactiveCountry}</Typography>
+                        <Typography sx={{ fontSize: '0.7rem' }}>InActive</Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
 
                 <Box sx={{ display: 'flex' }}>
                   <Button onClick={handleAddForm} sx={{ mr: 1 }} variant='contained' size='small' color='success'>
-                    <AddIcon /> Add State
+                    <AddIcon /> Add
                   </Button>
                   <Button
                     variant='contained'

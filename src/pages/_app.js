@@ -63,7 +63,6 @@ const App = props => {
       <Head>
         <title>{`${themeConfig.templateName} – ADMIN PANEL`}</title>
         <meta name='description' content={`${themeConfig.templateName} – ADMIN PANEL -`} />
-        {/* <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' /> */}
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
 

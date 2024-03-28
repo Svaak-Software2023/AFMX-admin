@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { styled } from '@mui/material/styles'
+import { alpha, styled } from '@mui/material/styles'
 
 // ** MUI Imports
 import {
@@ -15,7 +15,11 @@ import {
   Alert,
   Snackbar,
   Modal,
-  Typography
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material'
 
 import 'react-datepicker/dist/react-datepicker.css'
@@ -33,6 +37,24 @@ import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
 import AddIcon from '@mui/icons-material/Add'
 import CountryModel from './CountryModel'
+import PublicIcon from '@mui/icons-material/Public'
+import Switch from '@mui/material/Switch'
+import { pink } from '@mui/material/colors'
+import { customStyles } from 'src/Common'
+
+const PinkSwitch = styled(Switch)(({ theme }) => ({
+  '& .MuiSwitch-switchBase.Mui-checked': {
+    color: pink[600],
+    '&:hover': {
+      backgroundColor: alpha(pink[600], theme.palette.action.hoverOpacity)
+    }
+  },
+  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+    backgroundColor: pink[600]
+  }
+}))
+
+const label = { inputProps: { 'aria-label': 'Color switch demo' } }
 
 // table funtion
 const Active = styled('p')(() => ({
@@ -69,12 +91,17 @@ const FormLayoutsSeparator = () => {
   const [getid, setGetId] = useState('')
   const [isFormVisible, setFormVisible] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [toggle, setToggle] = useState(true)
 
   const [formData, setFormData] = useState({
     countryName: '',
     countryShortName: '',
     countryPhoneCode: ''
   })
+
+  //---------------No. of Active & InActive---------------
+  const activeCountry = data.filter(item => item.isActive == true).length
+  const inactiveCountry = data.filter(item => item.isActive == false).length
 
   //------------------------------------Open & Close Modal ---------------------------
   const handleOpen = id => {
@@ -94,6 +121,11 @@ const FormLayoutsSeparator = () => {
       ...formData,
       [name]: value
     })
+  }
+
+  //-------------------Handle Switch -------------------
+  const handleSwitch = () => {
+    setToggle(prevToggle => !prevToggle)
   }
 
   // ------------------------------------------ React Data Table --------------------------------
@@ -142,16 +174,6 @@ const FormLayoutsSeparator = () => {
       )
     }
   ]
-
-  const tableHeaderstyle = {
-    headCells: {
-      style: {
-        fontWeight: 'bold',
-        fontSize: '14px',
-        backgroundColor: '#ccc'
-      }
-    }
-  }
 
   //-----------------------------------------------Actions -------------------------------------------
   //------------------Submit form-------
@@ -233,6 +255,15 @@ const FormLayoutsSeparator = () => {
                 <DatePickerWrapper>
                   <Grid container spacing={5}>
                     <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth>
+                        <InputLabel>Select Continent</InputLabel>
+                        <Select label='Select Continent' name='continentId' onChange={handleChange}>
+                          <MenuItem value='South America'>South America</MenuItem>
+                          <MenuItem value='North America'>North America</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         label='Country'
@@ -277,21 +308,19 @@ const FormLayoutsSeparator = () => {
       </Card>
 
       {/*Country Table */}
+
       {/* ---------------------------------------------------------------------------- */}
+      <Typography variant='h6' sx={{ display: 'flex', alignItems: 'center' }}>
+        <PublicIcon /> &nbsp; AFMX Country List
+      </Typography>
       <Grid item xs={12} sx={{ marginTop: '5px' }}>
         <Card>
-          <CardHeader
-            title='AFMX Country List'
-            titleTypographyProps={{ variant: 'h6' }}
-            sx={{ fontWeight: 'bolder', textAlign: 'center' }}
-          />
           <Divider sx={{ margin: '0' }} />
           <DataTable
-            customStyles={tableHeaderstyle}
+            customStyles={customStyles}
             columns={columns}
             data={filter === null ? data : filter}
             pagination
-            selectableRows
             fixedHeader
             selectableRowsHighlight
             highlightOnHover
@@ -312,11 +341,32 @@ const FormLayoutsSeparator = () => {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />
+                  <Box sx={{ display: 'flex', marginLeft: '10px' }}>
+                    <PublicIcon sx={{ fontSize: '30px', marginTop: '5px', color: 'skyBlue' }} />
+                    <Box>
+                      <Typography sx={{ fontSize: '1.2rem', textAlign: 'left' }}>{data.length}</Typography>
+                      <Typography sx={{ fontSize: '0.7rem' }}>Countries</Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', marginLeft: '10px' }}>
+                    <PinkSwitch {...label} onChange={handleSwitch} defaultChecked />
+                    {toggle == true ? (
+                      <Box>
+                        <Typography sx={{ fontSize: '1.2rem', textAlign: 'center' }}>{activeCountry}</Typography>
+                        <Typography sx={{ fontSize: '0.7rem' }}>Active</Typography>
+                      </Box>
+                    ) : (
+                      <Box>
+                        <Typography sx={{ fontSize: '1.2rem', textAlign: 'center' }}>{inactiveCountry}</Typography>
+                        <Typography sx={{ fontSize: '0.7rem' }}>InActive</Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
 
                 <Box sx={{ display: 'flex' }}>
                   <Button onClick={handleAddForm} sx={{ mr: 1 }} variant='contained' size='small' color='success'>
-                    <AddIcon /> Add Country
+                    <AddIcon /> Add
                   </Button>
 
                   <Button

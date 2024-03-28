@@ -1,6 +1,7 @@
 // ** React Imports
 import { forwardRef, useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
+import * as React from 'react'
 
 // ** MUI Imports
 import Card from '@mui/material/Card'
@@ -13,6 +14,8 @@ import CardHeader from '@mui/material/CardHeader'
 
 import CardContent from '@mui/material/CardContent'
 import CardActions from '@mui/material/CardActions'
+import TablePagination from '@mui/material/TablePagination'
+import TableSortLabel from '@mui/material/TableSortLabel'
 
 import Box from '@mui/material/Box'
 import Magnify from 'mdi-material-ui/Magnify'
@@ -35,6 +38,32 @@ import {
   updateServiceDepartment
 } from 'src/store/features/serviceDepartmentSlice'
 import Model from './model'
+
+import TableRow from '@mui/material/TableRow'
+import TableCell, { tableCellClasses } from '@mui/material/TableCell'
+import { customStyles } from 'src/Common'
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    color: theme.palette.common.white,
+
+    backgroundColor: theme.palette.common.black
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14
+  }
+}))
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: theme.palette.action.hover
+  },
+
+  // hide last border
+  '&:last-of-type td, &:last-of-type th': {
+    border: 0
+  }
+}))
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -166,16 +195,6 @@ const FormLayoutsSeparator = () => {
     }
   ]
 
-  const tableHeaderstyle = {
-    headCells: {
-      style: {
-        fontWeight: 'bold',
-        fontSize: '14px',
-        backgroundColor: '#ccc'
-      }
-    }
-  }
-
   const handleUpdate = async id => {
     try {
       const data = await serviceDepartmentData.find(i => i.serviceDepartmentId === id)
@@ -249,11 +268,10 @@ const FormLayoutsSeparator = () => {
           />
 
           <DataTable
-            customStyles={tableHeaderstyle}
+            customStyles={customStyles}
             columns={columns}
             data={filter === null ? serviceDepartmentData : filter}
             pagination
-            selectableRows
             fixedHeader
             selectableRowsHighlight
             highlightOnHover

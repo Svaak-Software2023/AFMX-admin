@@ -6,7 +6,9 @@ import themeConfig from 'src/configs/themeConfig'
 
 const initialSettings = {
   themeColor: 'primary',
-  mode: themeConfig.mode,
+
+  // mode: themeConfig.mode,
+
   contentWidth: themeConfig.contentWidth
 }
 

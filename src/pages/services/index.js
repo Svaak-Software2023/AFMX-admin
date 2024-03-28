@@ -37,6 +37,7 @@ import { useRef } from 'react'
 import Backdrop from '@mui/material/Backdrop'
 import Menu from '@mui/material/Menu'
 import Model from './model'
+import { customStyles } from 'src/Common'
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -233,16 +234,6 @@ const FormLayoutsSeparator = () => {
     }
   ]
 
-  const tableHeaderstyle = {
-    headCells: {
-      style: {
-        fontWeight: 'bold',
-        fontSize: '14px',
-        backgroundColor: '#ccc'
-      }
-    }
-  }
-
   //   const singleState = stateData?.find(i => i.stateId === getid)
 
   //   const handleUpdate = async id => {
@@ -387,11 +378,10 @@ const FormLayoutsSeparator = () => {
             sx={{ fontWeight: 'bolder', textAlign: 'center' }}
           />
           <DataTable
-            customStyles={tableHeaderstyle}
+            customStyles={customStyles}
             columns={columns}
             data={filter === null ? servicesData : filter}
             pagination
-            selectableRows
             fixedHeader
             selectableRowsHighlight
             highlightOnHover

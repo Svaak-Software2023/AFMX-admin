@@ -36,7 +36,9 @@ export const updateCity = createAsyncThunk('form/updateCityData', async ({ id, d
     console.log(`City Slice: ${JSON.stringify(data)}`)
     const city = await updateCityData(id, data)
 
-    return city
+    const cityAll = await getCityData()
+
+    return cityAll.getResponse
   } catch (error) {
     return rejectWithValue(error.message)
   }
@@ -73,6 +75,7 @@ export const citySlice = createSlice({
         state.status = 'loading'
       })
       .addCase(updateCity.fulfilled, (state, action) => {
+        state.data = action.payload
         state.status = 'succeeded'
       })
       .addCase(updateCity.rejected, (state, action) => {

@@ -3,6 +3,7 @@ import Divider from '@mui/material/Divider'
 import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import MuiListSubheader from '@mui/material/ListSubheader'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 // ** Styled Components
 const ListSubheader = styled(props => <MuiListSubheader component='li' {...props} />)(({ theme }) => ({

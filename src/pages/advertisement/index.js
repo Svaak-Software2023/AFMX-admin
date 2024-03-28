@@ -1,7 +1,7 @@
 // ** MUI Imports
-import { Grid, Card, CardHeader, Modal, Box, Button, TextField, InputAdornment } from '@mui/material'
+import { Grid, Card, Modal, Box, Button, TextField, InputAdornment, Typography } from '@mui/material'
 import Magnify from 'mdi-material-ui/Magnify'
-import { styled } from '@mui/material/styles'
+import { alpha, styled } from '@mui/material/styles'
 
 import { StyledDeleteButton, StyledUpdateButton } from 'src/views/icons'
 
@@ -19,6 +19,24 @@ import { fetchClientData } from 'src/store/features/clientSlice'
 
 import { SiMicrosoftexcel } from 'react-icons/si'
 import AdsForm from './AdsForm'
+import CampaignIcon from '@mui/icons-material/Campaign'
+import Switch from '@mui/material/Switch'
+import { pink } from '@mui/material/colors'
+import { customStyles } from 'src/Common'
+
+const PinkSwitch = styled(Switch)(({ theme }) => ({
+  '& .MuiSwitch-switchBase.Mui-checked': {
+    color: pink[600],
+    '&:hover': {
+      backgroundColor: alpha(pink[600], theme.palette.action.hoverOpacity)
+    }
+  },
+  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+    backgroundColor: pink[600]
+  }
+}))
+
+const label = { inputProps: { 'aria-label': 'Color switch demo' } }
 
 const Active = styled('p')(() => ({
   color: 'green'
@@ -55,6 +73,11 @@ const Advertisement = () => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState([])
+  const [toggle, setToggle] = useState(true)
+
+  //---------------No. of Active & InActive---------------
+  const activeCountry = data.filter(item => item.isActive == true).length
+  const inactiveCountry = data.filter(item => item.isActive == false).length
 
   //--------------------- Open & Close From --------------------
   const handleOpen = id => {
@@ -77,6 +100,11 @@ const Advertisement = () => {
     }
   }
 
+  //-------------------Handle Switch -------------------
+  const handleSwitch = () => {
+    setToggle(prevToggle => !prevToggle)
+  }
+
   //------------------------React Data Table -------------------------
   const columns = [
     {
@@ -87,7 +115,8 @@ const Advertisement = () => {
     {
       name: 'Client Name',
       selector: row => findUserName(row.clientId),
-      wrap: true
+      wrap: true,
+      sortable: true
     },
     {
       name: 'Phone No.',
@@ -96,20 +125,24 @@ const Advertisement = () => {
     {
       name: 'Business Name',
       selector: row => row.businessName,
-      wrap: true
+      wrap: true,
+      sortable: true
     },
     {
       name: 'URL',
       selector: row => row.businessURL,
-      wrap: true
+      wrap: true,
+      sortable: true
     },
     {
       name: 'Page',
-      selector: row => row.advertisePage
+      selector: row => row.advertisePage,
+      sortable: true
     },
     {
       name: 'Location',
-      selector: row => row.advertiseLocation
+      selector: row => row.advertiseLocation,
+      sortable: true
     },
     {
       name: 'Start Date',
@@ -134,16 +167,6 @@ const Advertisement = () => {
       )
     }
   ]
-
-  const tableHeaderstyle = {
-    headCells: {
-      style: {
-        fontWeight: 'bold',
-        fontSize: '14px',
-        backgroundColor: '#ccc'
-      }
-    }
-  }
 
   //--------------------------------- Use Effects --------------------
   useEffect(() => {
@@ -178,20 +201,16 @@ const Advertisement = () => {
 
   return (
     <>
+      <Typography variant='h6' sx={{ display: 'flex', alignItems: 'center' }}>
+        <CampaignIcon /> &nbsp; Advertisements Report
+      </Typography>
       <Grid item xs={12}>
         <Card>
-          <CardHeader
-            title='Advertisements Report'
-            titleTypographyProps={{ variant: 'h6' }}
-            sx={{ textAlign: 'center' }}
-          />
-
           <DataTable
-            customStyles={tableHeaderstyle}
+            customStyles={customStyles}
             columns={columns}
             data={filter === null ? data : filter}
             pagination
-            selectableRows
             fixedHeader
             selectableRowsHighlight
             highlightOnHover
@@ -212,6 +231,28 @@ const Advertisement = () => {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />
+
+                  <Box sx={{ display: 'flex', marginLeft: '10px' }}>
+                    <CampaignIcon sx={{ fontSize: '30px', marginTop: '5px', color: 'skyBlue' }} />
+                    <Box>
+                      <Typography sx={{ fontSize: '1.2rem', textAlign: 'left' }}>{data.length}</Typography>
+                      <Typography sx={{ fontSize: '0.7rem' }}>Advertisements</Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', marginLeft: '10px' }}>
+                    <PinkSwitch {...label} onChange={handleSwitch} defaultChecked />
+                    {toggle == true ? (
+                      <Box>
+                        <Typography sx={{ fontSize: '1.2rem', textAlign: 'center' }}>{activeCountry}</Typography>
+                        <Typography sx={{ fontSize: '0.7rem' }}>Active</Typography>
+                      </Box>
+                    ) : (
+                      <Box>
+                        <Typography sx={{ fontSize: '1.2rem', textAlign: 'center' }}>{inactiveCountry}</Typography>
+                        <Typography sx={{ fontSize: '0.7rem' }}>InActive</Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
                 <Button
                   variant='contained'
