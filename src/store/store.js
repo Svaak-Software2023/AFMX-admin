@@ -10,6 +10,7 @@ import servicesReducer from '../store/features/servicesSlice'
 import complaintReducer from '../store/features/complaintsSlice'
 import remarkReducer from '../store/features/remarkSlice'
 import thunk from 'redux-thunk'
+import productAndcategoryReducer from "../store/features/productAndcategorySlice";
 
 const rootReducer = {
   advertiseData: advertiseReducer,
@@ -21,7 +22,8 @@ const rootReducer = {
   serviceDepartmentData: serviceDepartmentReducer,
   servicesData: servicesReducer,
   complaintsData: complaintReducer,
-  remarkData: remarkReducer
+  remarkData: remarkReducer,
+  productAndcategoryData:productAndcategoryReducer
 }
 
 export const store = configureStore({

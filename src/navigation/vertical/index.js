@@ -15,6 +15,8 @@ import ApartmentIcon from '@mui/icons-material/Apartment'
 import LocationCityIcon from '@mui/icons-material/LocationCity'
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices'
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService'
+import CategoryIcon from '@mui/icons-material/Category';
+import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 
 const navigation = () => {
   return [
@@ -68,6 +70,19 @@ const navigation = () => {
       title: 'Services',
       icon: MiscellaneousServicesIcon,
       path: '/services'
+    },
+    {
+      sectionTitle: 'CHEMICAL SHOPPING CENTER '
+    },
+    {
+      title: 'Categories',
+      icon: CategoryIcon,
+      path: '/categories'
+    },
+    {
+      title: 'Orders',
+      icon: ShoppingCartCheckoutIcon,
+      path: '/orders'
     },
 
     {
