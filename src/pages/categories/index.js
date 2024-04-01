@@ -209,9 +209,20 @@ console.log('allProducts----------------',allCategory);
   }, [dispatch])
 
 
+
+  useEffect(() => {
+    const result = allCategory?.filter(item => {
+      const productCategoryName = item.productCategoryName.toLowerCase().includes(search.toLowerCase())
+      const productCategoryDescription = item.productCategoryDescription.toLowerCase().includes(search.toLowerCase())
+      console.log('productCategoryName || productCategoryDescription',productCategoryName);
+      return productCategoryName || productCategoryDescription
+    })
+    setFilter(result)
+    console.log('ffffffffffffff',filter);
+  }, [search,allCategory])
   // ----------------------------------Export To Excel Data --------------------------------
   const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
+    const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : allCategory)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1')
     XLSX.writeFile(wb, 'Country_data.xlsx')
@@ -236,7 +247,7 @@ console.log('allProducts----------------',allCategory);
           <>
             <form onSubmit={handleSubmit}>
               <CardContent>
-                <Typography variant='h6' sx={{ textAlign: 'center', margin: 0 }}>
+                <Typography variant='h6' sx={{ textAlign: 'left', margin: 0 }}>
                   Add Category
                 </Typography>
                 <Divider />
@@ -300,7 +311,7 @@ console.log('allProducts----------------',allCategory);
           <DataTable
             customStyles={customStyles}
             columns={columns}
-            data={allCategory}
+            data={filter === null ? allCategory : filter}
             pagination
             fixedHeader
             selectableRowsHighlight

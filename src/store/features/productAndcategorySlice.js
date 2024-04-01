@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getProductCategory,addProductCategory, allProductByCategoryId, singleProductById } from '../ApiServices/productAndCategory'
+import { getProductCategory,addProductCategory, allProductByCategoryId, singleProductById, addProduct } from '../ApiServices/productAndCategory'
 
 
 
@@ -40,6 +40,19 @@ export const allProduct_By_CategoryId = createAsyncThunk("/all-product/:Category
 export const single_ProductBy_Id = createAsyncThunk("single/products/:productId", async (productId) => {
     try {
         const response = await singleProductById(productId)
+        return response
+    } catch (err) {
+        return err.response
+    }
+});
+
+
+
+////////////------------product---------------------------/////////////////////////////
+
+export const add_new_Product = createAsyncThunk("/new/add-product", async (formData) => {
+    try {
+        const response = await addProduct(formData);
         return response
     } catch (err) {
         return err.response
@@ -135,6 +148,21 @@ const productAndCategorySlice = createSlice({
             state.singleProduct.loading=false
             state.singleProduct.error=action.payload
             state.singleProduct.status = 'failed'
+        },
+        [add_new_Product.pending]:(state,action)=>{
+            state.allProducts.loading=true
+            state.allProducts.status = 'loading'
+        },
+        [add_new_Product.fulfilled]:(state,action)=>{
+            state.allProducts.message = action.payload?.message
+            state.allProducts.loading=false
+            state.allProducts.productsList.push(action.payload?.productResponse)
+            state.allProducts.status = 'succeeded' // action.payload?.productResponse
+        },
+        [add_new_Product.rejected]:(state,action)=>{
+            state.allProducts.loading=false
+            state.allProducts.error=action.payload
+            state.allProducts.status = 'failed'
         },
     }
 })

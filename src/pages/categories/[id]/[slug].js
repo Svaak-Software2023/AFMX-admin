@@ -29,7 +29,7 @@ import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
 
 // ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
-import {addProduct_Category,allProduct_By_CategoryId } from 'src/store/features/productAndcategorySlice'
+import {addProduct_Category,allProduct_By_CategoryId, getProductAndcategory,add_new_Product } from 'src/store/features/productAndcategorySlice'
 
 import DataTable from 'react-data-table-component'
 import Magnify from 'mdi-material-ui/Magnify'
@@ -89,7 +89,8 @@ const Products = () => {
   // -----------------------------------REDUX STORE ------------------------------------
   const dispatch = useDispatch();
   const { allProducts:{productsList, loading, status,message} } = useSelector(state => state.productAndcategoryData)
-console.log('productsList----productsList------------',productsList);
+  let { allCategory } = useSelector(state => state.productAndcategoryData)
+  allCategory = allCategory.filter(e => e.productCategoryId == categoryId);
   // --------------------------------------UseState --------------------------------
   const [filter, setFilter] = useState([])
   const [search, setSearch] = useState('')
@@ -98,11 +99,25 @@ console.log('productsList----productsList------------',productsList);
   const [isFormVisible, setFormVisible] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [toggle, setToggle] = useState(true)
+  const [images, setImages] = useState([]);
+  const [imageURLS, setImageURLs] = useState([]);
 
   const [formData, setFormData] = useState({
-    productCategoryName: '',
-    productCategoryDescription: '',
-    isActive: true
+    productName: "",
+    productCategoryName: "",
+    productBrand: "",
+    quantity: "",
+    productMRP: "",
+    productPrice: "",
+    upcCode: "",
+    skuCode: "",
+    discount: "",
+    fragrances: "",
+    containerType: "",
+    cleanerForm: "",
+    containerSize: "",
+    productDescription: '',
+    productImage: []
   })
 
 
@@ -125,6 +140,10 @@ console.log('productsList----productsList------------',productsList);
    
   }, [categoryId])
 
+  useEffect(() => {
+    dispatch(getProductAndcategory())
+  }, [dispatch])
+
   //-------------------Handle Switch -------------------
   const handleSwitch = () => {
     setToggle(prevToggle => !prevToggle)
@@ -139,14 +158,14 @@ console.log('productsList----productsList------------',productsList);
     },
     {
       name: 'Name',
-      selector: row => row.productName.toUpperCase(),
+      selector: row => row.productName?.toUpperCase(),
       sortable: true,
       grow:2,
       wrap: true
     },
     {
       name: 'Brand',
-      selector: row => row.productBrand.toUpperCase(),
+      selector: row => row.productBrand?.toUpperCase(),
       sortable: true,
       wrap: true,
       grow:2
@@ -175,6 +194,22 @@ console.log('productsList----productsList------------',productsList);
     }
   ];
 
+  // ----------------------------------------- Handle Changes for multiple images or single image--------------------------------
+
+  useEffect(() => {
+    if (images.length < 1) return;
+    const newImageUrls = [];
+    images.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
+    setImageURLs(newImageUrls);
+  }, [images]);
+
+  const onImageChange =(e) => {
+    const productImage = [...e.target.files]
+    setFormData({...formData,productImage})
+    setImages([...e.target.files]);
+  }
+
+
 
     // ----------------------------------------- Handle Changes --------------------------------
     const handleChange = e => {
@@ -190,12 +225,25 @@ console.log('productsList----productsList------------',productsList);
   const handleSubmit = e => {
     e.preventDefault()
     try {
-      if(!formData.productCategoryName && !formData.productCategoryDescription) return
-      dispatch(addProduct_Category(formData))
+      if(checkProperties(formData)) return
+      console.log('...............................................');
+      dispatch(add_new_Product(formData))
       setFormData({
-        productCategoryName: '',
-        productCategoryDescription: '',
-        isActive: true
+        productName: "",
+        productCategoryName: "",
+        productBrand: "",
+        quantity: "",
+        productMRP: "",
+        productPrice: "",
+        upcCode: "",
+        skuCode: "",
+        discount: "",
+        fragrances: "",
+        containerType: "",
+        cleanerForm: "",
+        containerSize: "",
+        productDescription: '',
+        productImage: []
       })
       showSuccessMessage('Form submitted successfully')
       setFormVisible(false)
@@ -203,6 +251,13 @@ console.log('productsList----productsList------------',productsList);
       console.error('Error While Submitting Form', error)
     }
   }
+
+  function checkProperties(obj) {
+    if(!obj.productName && !obj.productCategoryName && !obj.productBrand && !obj.quantity && !obj.productMRP && !obj.productPrice && !obj.upcCode && !obj.skuCode && !obj.discount && !obj.fragrances && !obj.containerType && !obj.cleanerForm && !obj.containerSize && !obj.productDescription && !obj.productImage.length){
+      return true
+    }
+    return false
+    }
 
   // ----------------Delete ----------
   const handleDelete = async id => {
@@ -245,7 +300,7 @@ console.log('productsList----productsList------------',productsList);
           <>
             <form onSubmit={handleSubmit}>
               <CardContent>
-                <Typography variant='h6' sx={{ textAlign: 'center', margin: 0 }}>
+                <Typography variant='h6' sx={{ textAlign: 'left', margin: 0 }}>
                   Add Product
                 </Typography>
                 <Divider />
@@ -254,31 +309,169 @@ console.log('productsList----productsList------------',productsList);
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label='Category Name'
-                        name='productCategoryName'
-                        placeholder='Enter Category Name'
-                        value={formData.productCategoryName}
+                        label='Product Name'
+                        name='productName'
+                        placeholder='Enter Product Name'
+                        value={formData.productName}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                  
+                       <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth>
+                        <InputLabel>Category Name</InputLabel>
+                        <Select label='Select Category Name' name='productCategoryName' value={formData.productCategoryName} onChange={handleChange}>
+                          {(allCategory.map(({_id,productCategoryName})=>(
+                            <MenuItem value={productCategoryName} key={_id} >{productCategoryName}</MenuItem>
+                          )))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Brand Name'
+                        name='productBrand'
+                        placeholder='Enter Brand Name'
+                        value={formData.productBrand}
                         onChange={handleChange}
                         isRequired={true}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <FormControl fullWidth>
-                        <InputLabel>Active</InputLabel>
-                        <Select label='Select Continent' name='isActive' value={formData.isActive} onChange={handleChange}>
-                          <MenuItem value='true'>True</MenuItem>
-                          <MenuItem value='false'>False</MenuItem>
-                        </Select>
-                      </FormControl>
+                      <TextField
+                        fullWidth
+                        label='Quantity'
+                        name='quantity'
+                        placeholder='Enter Quantity'
+                        value={formData.quantity}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
                     </Grid>
                     <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='MRP'
+                        name='productMRP'
+                        placeholder='Enter MRP'
+                        value={formData.productMRP}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Price'
+                        name='productPrice'
+                        placeholder='Enter Price'
+                        value={formData.productPrice}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='UPC Code'
+                        name='upcCode'
+                        placeholder='Enter UPC'
+                        value={formData.upcCode}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='SKU Code'
+                        name='skuCode'
+                        placeholder='Enter SKU'
+                        value={formData.skuCode}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Discount '
+                        name='discount'
+                        placeholder='Enter Discount'
+                        value={formData.discount}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Fragrances '
+                        name='fragrances'
+                        placeholder='Enter Fragrances'
+                        value={formData.fragrances}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Container Type '
+                        name='containerType'
+                        placeholder='Enter Container Type'
+                        value={formData.containerType}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Cleaner Form'
+                        name='cleanerForm'
+                        placeholder='Enter Cleaner Form'
+                        value={formData.cleanerForm}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label='Container Size'
+                        name='containerSize'
+                        placeholder='Enter Container Size'
+                        value={formData.containerSize}
+                        onChange={handleChange}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                    <Button
+                    variant="contained"
+                    component="label">
+                      Upload File
+                  <input type="file" hidden multiple accept="image/*" onChange={onImageChange} />
+                    </Button>
+                    </Grid>
+                    <Grid item xs={12} sm={12}>
+                    {imageURLS.map((imageSrc,index) => (
+                    <img key={index} src={imageSrc} alt="not fount" width={"250px"} />
+                      ))}
+                    </Grid>
+
+                    <Grid item xs={12} sm={12}>
                       <TextareaAutosize
                         fullWidth
                         isRequired={true}
-                        name='productCategoryDescription'
-                        label='Category Description'
-                        placeholder='Enter Category Description'
-                        value={formData.productCategoryDescription}
+                        name='productDescription'
+                        label='Product Description'
+                        placeholder='Enter Product Description'
+                        value={formData.productDescription}
                         onChange={handleChange}
                         minRows={10}
                         cols={155}
@@ -331,9 +524,6 @@ console.log('productsList----productsList------------',productsList);
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                   />
-                  <Box sx={{ display: 'flex', marginLeft: '10px' }}>
-                    <PublicIcon sx={{ fontSize: '30px', marginTop: '5px', color: 'skyBlue' }} />
-                  </Box>
                 </Box>
 
                 <Box sx={{ display: 'flex' }}>

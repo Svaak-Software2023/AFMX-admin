@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from 'react-redux'
 import { single_ProductBy_Id } from 'src/store/features/productAndcategorySlice'
-import { Card, Typography,CardActions,CardContent,CardMedia,Button, Box } from '@mui/material';
+import { Card, Typography,CardActions,CardContent,CardMedia,Button, Box, ImageList, ImageListItem } from '@mui/material';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 
 const productDetails = () => {
@@ -49,12 +49,21 @@ const productDetails = () => {
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>updatedDate:<Box component='span' sx={{ marginLeft:"15px" }}>{ (productDetails?.updatedDate ? productDetails?.updatedDate.split('T')[0] : 'N/A')}</Box></Typography>
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>Description:<Box component='span' sx={{ marginLeft:"15px" }}>{productDetails?.productDescription}</Box></Typography>
       </CardContent>
-      <CardMedia
-        sx={{ height: 440 }}
-        image="/static/images/cards/contemplative-reptile.jpg"
-        title="green iguana"
+      <ImageList sx={{ maxWidth: 1100 }} cols={2}>
+        {((productDetails?.productImage) || []).map((item,index) => (
+      <ImageListItem key={index}>
+      <img
+        srcSet={item}
+        src={item}
+        alt={item}
+        loading="lazy"
       />
+    </ImageListItem>
+  ))}
+</ImageList>
     </Card>
+    
+        
     </>
   )
 }

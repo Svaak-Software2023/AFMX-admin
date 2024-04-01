@@ -215,7 +215,6 @@ const FormLayoutsSeparator = () => {
       const country = item.countryName.toLowerCase().includes(search.toLowerCase())
       const countryShortName = item.countryShortName.toLowerCase().includes(search.toLowerCase())
       const countryPhoneCode = item.countryPhoneCode.toLowerCase().includes(search.toLowerCase())
-
       return country || countryShortName || countryPhoneCode
     })
     setFilter(result)

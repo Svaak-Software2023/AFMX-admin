@@ -43,3 +43,26 @@ export const singleProductById = async (productId) => {
   }
 }
 
+
+
+// ///////------------------------  product -------------///////////////
+
+export const addProduct = async (form_Data) => {
+  try {
+    const formData = new FormData();
+    for (const [key, val] of Object.entries(form_Data)){
+      if(key === 'productImage'){
+        for(const img of val){
+          formData.append(key, img);
+        }
+      }else{
+        formData.append(key, val);
+      }
+    }
+    
+    const response = await axios.post('/add-product', formData)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+};
