@@ -1,3 +1,4 @@
+import { Alert } from '@mui/material';
 import axios from 'axios'
 
 axios.defaults.baseURL = 'http://localhost:5000/api'
@@ -66,3 +67,52 @@ export const addProduct = async (form_Data) => {
     throw error
   }
 };
+
+
+export const updateCategory = async (id, categoryData) => {
+  try {
+    const response = await axios.put(`/update-product-category/${id}`, categoryData)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+
+export const updateCategoryStatus = async (id, isTrue) => {
+  try {
+    const response = await axios.patch(`/delete-product-category/${id}`, {"isActive":isTrue})
+    return response.data
+  } catch (error) {
+    throw error
+  }
+};
+
+export const updateProductStatus = async (productId, isTrue) => {
+  try {
+    const response = await axios.patch(`/delete-product/${productId}`, {"isActive":isTrue})
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const updateProduct = async (productId,form_Data) => {
+  try {
+    const formData = new FormData();
+    for (const [key, val] of Object.entries(form_Data)){
+      if(key === 'productImage'){
+        for(const img of val){
+          formData.append(key, img);
+        }
+      }else{
+        formData.append(key, val);
+      }
+    };
+
+    const response = await axios.put(`/update-product/${productId}`, formData)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}

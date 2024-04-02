@@ -29,7 +29,7 @@ import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
 
 // ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
-import {addProduct_Category,allProduct_By_CategoryId, getProductAndcategory,add_new_Product } from 'src/store/features/productAndcategorySlice'
+import {addProduct_Category,allProduct_By_CategoryId, getProductAndcategory,add_new_Product,updateProduct_Status } from 'src/store/features/productAndcategorySlice'
 
 import DataTable from 'react-data-table-component'
 import Magnify from 'mdi-material-ui/Magnify'
@@ -37,7 +37,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
 import AddIcon from '@mui/icons-material/Add'
-import CategoriesModel from '../categoriesModel'
+import ProductModel from './productModel'
 import PublicIcon from '@mui/icons-material/Public'
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import Switch from '@mui/material/Switch'
@@ -149,6 +149,11 @@ const Products = () => {
     setToggle(prevToggle => !prevToggle)
   }
 
+  const updateStatus = (productId,isTrue) => {
+    console.log('/////////////////////',isTrue);
+    dispatch(updateProduct_Status({productId, isTrue})).then((x)=>showSuccessMessage('Status updated successfully'));
+  }
+
   // ------------------------------------------ React Data Table --------------------------------
   const columns = [
     {
@@ -182,13 +187,14 @@ const Products = () => {
     },
     {
       name: 'Status',
-      selector: row => (row.isActive ? <Active>Active</Active> : <InActive>Inactive</InActive>)
+      selector: row => (row.isActive ? <Button onClick={()=>updateStatus(row.productId,false)}><Active>Active</Active></Button> : <Button onClick={()=>updateStatus(row.productId,true)}><InActive>Inactive</InActive></Button>)
     },
     {
       name: 'Product',
       cell: row => (
         <>
-        <Link href={`/categories/${categoryId}/product/${row.productId}`}   color='success'>View</Link>
+        <Link href={`/categories/${categoryId}/product/${row.productId}`}   color='success'>View</Link> &nbsp; &nbsp;
+        <StyledUpdateButton onClick={id => handleOpen(row.productId)} titleAccess='edit product' />
         </>
       )
     }
@@ -226,8 +232,7 @@ const Products = () => {
     e.preventDefault()
     try {
       if(checkProperties(formData)) return
-      console.log('...............................................');
-      dispatch(add_new_Product(formData))
+      dispatch(add_new_Product(formData)).then((x)=>showSuccessMessage('Product Created successfully'));
       setFormData({
         productName: "",
         productCategoryName: "",
@@ -245,7 +250,6 @@ const Products = () => {
         productDescription: '',
         productImage: []
       })
-      showSuccessMessage('Form submitted successfully')
       setFormVisible(false)
     } catch (error) {
       console.error('Error While Submitting Form', error)
@@ -465,12 +469,12 @@ const Products = () => {
                     </Grid>
 
                     <Grid item xs={12} sm={12}>
+                    <InputLabel>Product Description</InputLabel>
                       <TextareaAutosize
                         fullWidth
                         isRequired={true}
                         name='productDescription'
                         label='Product Description'
-                        placeholder='Enter Product Description'
                         value={formData.productDescription}
                         onChange={handleChange}
                         minRows={10}
@@ -557,7 +561,7 @@ const Products = () => {
         aria-describedby='parent-modal-description'
       >
         <Box sx={{ ...style }}>
-          {<CategoriesModel getid={getid} handleClose={handleClose} showSuccessMessage={showSuccessMessage} />}
+          {<ProductModel getid={getid} handleClose={handleClose} showSuccessMessage={showSuccessMessage} />}
         </Box>
       </Modal>
       {/* ----------------------------------------------------------------------------------------- */}
@@ -568,7 +572,7 @@ const Products = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert onClose={handleClose} severity='success' sx={{ width: '100%' }}>
-          Product Created successfully
+        {successMessage}
         </Alert>
       </Snackbar>
     </>

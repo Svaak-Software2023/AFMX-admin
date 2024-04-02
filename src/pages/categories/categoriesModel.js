@@ -4,47 +4,34 @@ import {
     TextField,
     InputLabel,
     Grid,
-    CardHeader,
-    FormControl,
-    Select,
-    MenuItem,
-    Button
+    Button,
+    TextareaAutosize,
+    Typography,
+    Divider,
+    CardActions
   } from '@mui/material'
   import React, { useState } from 'react'
   
-  import { styled } from '@mui/material/styles'
   import { useDispatch, useSelector } from 'react-redux'
-  import { updateCountry, getCountry } from 'src/store/features/countrySlice'
-  
-  const Form = styled('form')(({ theme }) => ({
-    maxWidth: '100%',
-    padding: theme.spacing(12),
-    borderRadius: theme.shape.borderRadius,
-  
-    overflow: 'hidden'
-  }))
+  import { update_Category} from 'src/store/features/productAndcategorySlice'
+  import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
   
   const categoriesModel = ({ handleClose, getid, showSuccessMessage }) => {
     // --------------- Redux Store -----------------------
     const dispatch = useDispatch()
-    const countryData = useSelector(state => state.countryData.data)
+    const { allCategory, loading, status } = useSelector(state => state.productAndcategoryData)
   
-    const singleCountry = countryData?.find(i => i.countryId === getid)
-  
-    const { countryId } = singleCountry
+    const singleCategory = allCategory?.find(i => i.productCategoryId === getid);
   
     // --------------------------- Use State -------------------------------
-    const [editedCountry, setEditedCountry] = useState({
-      countryName: singleCountry.countryName,
-      countryShortName: singleCountry.countryShortName,
-      countryPhoneCode: singleCountry.countryPhoneCode,
-  
-      isActive: singleCountry.isActive
+    const [editedCategory, setEditedCategory] = useState({
+      productCategoryName: singleCategory.productCategoryName,
+      productCategoryDescription: singleCategory.productCategoryDescription
     })
   
     // -------------------------- Handle Change --------------------------------
     const handleTextFieldChange = (field, value) => {
-      setEditedCountry(prev => ({
+      setEditedCategory(prev => ({
         ...prev,
         [field]: value
       }))
@@ -52,74 +39,61 @@ import {
   
     //------------------------------Update Action --------------------------------
     const handleUpdate = e => {
-      e.preventDefault()
-  
-      dispatch(updateCountry({ id: countryId, data: editedCountry }))
-      dispatch(getCountry())
-      handleClose()
-      showSuccessMessage('Country updated successfully')
+      e.preventDefault();
+      dispatch(update_Category({ id: singleCategory.productCategoryId, categoryData: editedCategory })).then((x)=>handleClose()).then((x)=>showSuccessMessage('Category updated successfully'));
     }
   
     //-----------------------------------//---------------------------------------------
     return (
       <>
         <Card>
-          <CardHeader title='Country Detail' titleTypographyProps={{ variant: 'h6' }} />
-          <CardContent>
-            <FormControl fullWidth>
-              <Form onSubmit={handleUpdate}>
-                <Grid container spacing={7}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label='Country Name'
-                      value={editedCountry.countryName}
-                      onChange={e => handleTextFieldChange('countryName', e.target.value)}
-                    />
+        {editedCategory.productCategoryName && (
+          <>
+            <form onSubmit={handleUpdate}>
+              <CardContent>
+                <Typography variant='h6' sx={{ textAlign: 'left', margin: 0 }}>
+                  Update Category
+                </Typography>
+                <Divider />
+                <DatePickerWrapper>
+                  <Grid container spacing={5}>
+                    <Grid item xs={12} sm={6}>
+                    <InputLabel>Category Name</InputLabel>
+                      <TextField
+                        fullWidth
+                        // label='Category Name'
+                        name='productCategoryName'
+                        // placeholder='Enter Category Name'
+                        value={editedCategory.productCategoryName}
+                        onChange={e => handleTextFieldChange('productCategoryName', e.target.value)}
+                        isRequired={true}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                    <InputLabel>Category Description</InputLabel>
+                      <TextareaAutosize
+                        fullWidth
+                        isRequired={true}
+                        name='productCategoryDescription'
+                        label='Category Description'
+                        value={editedCategory.productCategoryDescription}
+                        onChange={e => handleTextFieldChange('productCategoryDescription', e.target.value)}
+                        minRows={10}
+                        cols={155}
+                      /> 
+                    </Grid>
                   </Grid>
-  
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label='Country Short Name'
-                      value={editedCountry.countryShortName}
-                      onChange={e => handleTextFieldChange('countryShortName', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label='Country Phone Code'
-                      value={editedCountry.countryPhoneCode}
-                      onChange={e => handleTextFieldChange('countryPhoneCode', e.target.value)}
-                    />
-                  </Grid>
-  
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Status</InputLabel>
-                      <Select
-                        label='Status'
-                        defaultValue={editedCountry.isActive}
-                        onChange={e => handleTextFieldChange('isActive', e.target.value)}
-                      >
-                        <MenuItem value={true}>Active</MenuItem>
-  
-                        <MenuItem value={false}>Inactive</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-  
-                  <Grid item xs={12}>
-                    <Button variant='contained' sx={{ marginRight: 3.5 }} type='submit'>
-                      Save Changes
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Form>
-            </FormControl>
-          </CardContent>
-        </Card>
+                </DatePickerWrapper>
+              </CardContent>
+              <CardActions sx={{ display: 'flex', justifyContent: 'end' }}>
+                <Button size='medium' type='submit' variant='contained'>
+                  {status === 'loading' ? 'Updating...' : 'Update'}
+                </Button>
+              </CardActions>
+            </form>
+          </>
+        )}
+      </Card>
       </>
     )
   }

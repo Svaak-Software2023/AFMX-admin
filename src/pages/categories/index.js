@@ -21,6 +21,7 @@ import {
   Select,
   MenuItem
 } from '@mui/material'
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import 'react-datepicker/dist/react-datepicker.css'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
@@ -28,7 +29,7 @@ import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
 
 // ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { getProductAndcategory,addProduct_Category } from 'src/store/features/productAndcategorySlice'
+import { getProductAndcategory,addProduct_Category,updateCategory_Status } from 'src/store/features/productAndcategorySlice'
 
 import DataTable from 'react-data-table-component'
 import Magnify from 'mdi-material-ui/Magnify'
@@ -69,13 +70,12 @@ const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
-  overflow: 'scroll',
   transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-  height: '98%',
+  height: 'auto',
   width: '80%'
 }
 
@@ -111,9 +111,12 @@ console.log('allProducts----------------',allCategory);
     setFormVisible(prev => !prev)
   }
 
+  const updateStatus = (id,isTrue) => {
+    console.log('/////////////////////',isTrue);
+    dispatch(updateCategory_Status({id, isTrue})).then((x)=>showSuccessMessage('Status updated successfully'));
+  }
 
-
-  //-------------------Handle Switch -------------------
+  //-------------------Handle Switch ------------------- 
   const handleSwitch = () => {
     setToggle(prevToggle => !prevToggle)
   }
@@ -151,19 +154,20 @@ console.log('allProducts----------------',allCategory);
 
     {
       name: 'Status',
-      selector: row => (row.isActive ? <Active>Active</Active> : <InActive>Inactive</InActive>)
+      selector: row => (row.isActive ? <Button onClick={()=>updateStatus(row.productCategoryId,false)}><Active>Active</Active></Button> : <Button onClick={()=>updateStatus(row.productCategoryId,true)}><InActive>Inactive</InActive></Button>)
     },
     {
-      name: 'Product',
+      name: 'Actions',
       cell: row => (
         <>
-        <Link href={`/categories/${row.productCategoryId}/products`}   color='success'>View</Link>
+        <Link href={`/categories/${row.productCategoryId}/products`} color='success'>View</Link>  &nbsp; &nbsp;
+        <StyledUpdateButton onClick={id => handleOpen(row.productCategoryId)} titleAccess='edit category' />
         </>
       )
     }
   ];
 
-
+<Button sx={{ mr: 1 }} variant='contained' size='small' color='success'></Button>
     // ----------------------------------------- Handle Changes --------------------------------
     const handleChange = e => {
       const { name, value } = e.target
@@ -179,13 +183,12 @@ console.log('allProducts----------------',allCategory);
     e.preventDefault()
     try {
       if(!formData.productCategoryName && !formData.productCategoryDescription) return
-      dispatch(addProduct_Category(formData))
+      dispatch(addProduct_Category(formData)).then((x)=>showSuccessMessage('Category Created successfully'));
       setFormData({
         productCategoryName: '',
         productCategoryDescription: '',
         isActive: true
       })
-      showSuccessMessage('Form submitted successfully')
       setFormVisible(false)
     } catch (error) {
       console.error('Error While Submitting Form', error)
@@ -274,12 +277,12 @@ console.log('allProducts----------------',allCategory);
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6}>
+                    <InputLabel>Category Description</InputLabel>
                       <TextareaAutosize
                         fullWidth
                         isRequired={true}
                         name='productCategoryDescription'
                         label='Category Description'
-                        placeholder='Enter Category Description'
                         value={formData.productCategoryDescription}
                         onChange={handleChange}
                         minRows={10}
@@ -377,7 +380,7 @@ console.log('allProducts----------------',allCategory);
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert onClose={handleClose} severity='success' sx={{ width: '100%' }}>
-          Category Created successfully
+          {successMessage}
         </Alert>
       </Snackbar>
     </>

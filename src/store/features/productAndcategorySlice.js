@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getProductCategory,addProductCategory, allProductByCategoryId, singleProductById, addProduct } from '../ApiServices/productAndCategory'
+import { getProductCategory,addProductCategory, allProductByCategoryId, singleProductById, addProduct,updateCategory,updateCategoryStatus, updateProductStatus, updateProduct } from '../ApiServices/productAndCategory'
 
 
 
@@ -58,6 +58,45 @@ export const add_new_Product = createAsyncThunk("/new/add-product", async (formD
         return err.response
     }
 });
+
+
+export const update_Category = createAsyncThunk('/update/product-category/', async ({ id, categoryData }, { rejectWithValue }) => {
+    try {
+        const response = await updateCategory(id, categoryData)
+        return response
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  })
+
+export const updateCategory_Status = createAsyncThunk('/delete/product-category/', async ({ id, isTrue }, { rejectWithValue }) => {
+    try {
+        const response = await updateCategoryStatus(id, isTrue)
+        return response
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  });
+
+
+export const updateProduct_Status = createAsyncThunk('/delete/-product/', async ({ productId, isTrue }, { rejectWithValue }) => {
+    try {
+        const response = await updateProductStatus(productId, isTrue)
+        return response
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  });
+
+
+  export const update_Product = createAsyncThunk('/update/product/', async ({ productId,formData }, { rejectWithValue }) => {
+    try {
+        const response = await updateProduct(productId, formData)
+        return response
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  })
 
 
 
@@ -160,6 +199,102 @@ const productAndCategorySlice = createSlice({
             state.allProducts.status = 'succeeded' // action.payload?.productResponse
         },
         [add_new_Product.rejected]:(state,action)=>{
+            state.allProducts.loading=false
+            state.allProducts.error=action.payload
+            state.allProducts.status = 'failed'
+        },
+        [update_Category.pending]:(state,action)=>{
+            state.loading=true
+            state.status = 'loading'
+        },
+        [update_Category.fulfilled]:(state,action)=>{
+            state.message = action.payload?.message
+            state.loading=false
+            state.allCategory = state.allCategory.map((x)=>{
+                if(x.productCategoryId === action.payload?.categoryUpdateResponse.productCategoryId){
+                    x.productCategoryName = action.payload?.categoryUpdateResponse.productCategoryName,
+                    x.productCategoryDescription = action.payload?.categoryUpdateResponse.productCategoryDescription
+                }
+                return x
+            })
+            state.status = 'succeeded'
+        },
+        [update_Category.rejected]:(state,action)=>{
+            state.loading=false
+            state.error=action.payload
+            state.status = 'failed'
+        },
+        [updateCategory_Status.pending]:(state,action)=>{
+            state.loading=true
+            state.status = 'loading'
+        },
+        [updateCategory_Status.fulfilled]:(state,action)=>{
+            state.message = action.payload?.message
+            state.loading=false
+            state.allCategory = state.allCategory.map((x)=>{
+                if(x.productCategoryId === action.payload?.categoryDeleteResponse.productCategoryId){
+                    x.isActive = action.payload?.categoryDeleteResponse.isActive
+                }
+                return x
+            })
+            state.status = 'succeeded'
+        },
+        [updateCategory_Status.rejected]:(state,action)=>{
+            state.loading=false
+            state.error=action.payload
+            state.status = 'failed'
+        },
+        [updateProduct_Status.pending]:(state,action)=>{
+            state.allProducts.loading=true
+            state.allProducts.status = 'loading'
+        },
+        [updateProduct_Status.fulfilled]:(state,action)=>{
+            state.allProducts.message = action.payload?.message
+            state.allProducts.loading=false
+            state.allProducts.productsList = state.allProducts.productsList.map((x)=>{
+                if(x.productId === action.payload?.productDeleteResponse.productId){
+                    x.isActive = action.payload?.productDeleteResponse.isActive
+                }
+                return x
+            })
+            state.allProducts.status = 'succeeded'
+        },
+        [updateProduct_Status.rejected]:(state,action)=>{
+            state.allProducts.loading=false
+            state.allProducts.error=action.payload
+            state.allProducts.status = 'failed'
+        },
+        [update_Product.pending]:(state,action)=>{
+            state.allProducts.loading=true
+            state.allProducts.status = 'loading'
+        },
+        [update_Product.fulfilled]:(state,action)=>{
+            state.allProducts.message = action.payload?.message
+            state.allProducts.loading=false
+            state.allProducts.productsList = state.allProducts.productsList.map((x)=>{
+                if(x.productId === action.payload?.productUpdateResponse.productId){
+                    x.productName = action.payload?.productUpdateResponse.productName
+                    x.productDescription = action.payload?.productUpdateResponse.productDescription
+                    x.productCategoryName = action.payload?.productUpdateResponse.productCategoryName
+                    x.productBrand = action.payload?.productUpdateResponse.productBrand
+                    x.quantity = action.payload?.productUpdateResponse.quantity
+                    x.productMRP = action.payload?.productUpdateResponse.productMRP
+                    x.productPrice = action.payload?.productUpdateResponse.productPrice
+                    x.upcCode = action.payload?.productUpdateResponse.upcCode
+                    x.skuCode = action.payload?.productUpdateResponse.skuCode
+                    x.discount = action.payload?.productUpdateResponse.discount
+                    x.fragrances = action.payload?.productUpdateResponse.fragrances
+                    x.containerType = action.payload?.productUpdateResponse.containerType
+                    x.cleanerForm = action.payload?.productUpdateResponse.cleanerForm
+                    x.containerSize = action.payload?.productUpdateResponse.containerSize
+                    x.productImage = action.payload?.productUpdateResponse.productImage
+                    x.isActive = action.payload?.productUpdateResponse.isActive
+                }
+                return x
+            })
+            state.allProducts.status = 'succeeded'
+        },
+        [update_Product.rejected]:(state,action)=>{
             state.allProducts.loading=false
             state.allProducts.error=action.payload
             state.allProducts.status = 'failed'
