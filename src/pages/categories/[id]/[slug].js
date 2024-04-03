@@ -44,6 +44,7 @@ import Switch from '@mui/material/Switch'
 import { pink } from '@mui/material/colors'
 import { customStyles } from 'src/Common'
 import Link from 'next/link'
+import CloseIcon from '@mui/icons-material/Close';
 
 const PinkSwitch = styled(Switch)(({ theme }) => ({
   '& .MuiSwitch-switchBase.Mui-checked': {
@@ -296,6 +297,17 @@ const Products = () => {
 
   //-----------------------------------------//--------------------------------------------------
 
+  const deleteImage = (img,index) => {
+    const productImage = images.filter((x,i)=>  x !== img && i!== index );
+    if(productImage.length===0){
+      setImages([]);
+      setImageURLs([]);
+    }else {
+      setImages(productImage);
+      setFormData({...formData,productImage});
+  };
+  }
+
   return (
     <>
       {/* Form */}
@@ -462,12 +474,12 @@ const Products = () => {
                   <input type="file" hidden multiple accept="image/*" onChange={onImageChange} />
                     </Button>
                     </Grid>
-                    <Grid item xs={12} sm={12}>
                     {imageURLS.map((imageSrc,index) => (
+                    <Grid item xs={3} sm={3}>
                     <img key={index} src={imageSrc} alt="not fount" width={"250px"} />
-                      ))}
+                    <CloseIcon onClick={()=>deleteImage(imageSrc,index)} />
                     </Grid>
-
+                      ))}
                     <Grid item xs={12} sm={12}>
                     <InputLabel>Product Description</InputLabel>
                       <TextareaAutosize

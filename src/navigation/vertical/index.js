@@ -17,6 +17,7 @@ import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices
 import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService'
 import CategoryIcon from '@mui/icons-material/Category';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
+import LiveTvIcon from '@mui/icons-material/LiveTv';
 
 const navigation = () => {
   return [
@@ -38,6 +39,11 @@ const navigation = () => {
       title: 'Advertisement',
       icon: CampaignIcon,
       path: '/advertisement'
+    },
+    {
+      title: 'Mini Tv',
+      icon: LiveTvIcon,
+      path: '/minitv'
     },
 
     {

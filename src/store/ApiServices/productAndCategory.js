@@ -109,6 +109,7 @@ export const updateProduct = async (productId,form_Data) => {
         formData.append(key, val);
       }
     };
+    formData = Object.fromEntries(formData.entries());
 
     const response = await axios.put(`/update-product/${productId}`, formData)
     return response.data

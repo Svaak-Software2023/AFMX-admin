@@ -249,11 +249,11 @@ import { useRouter } from 'next/router'
                   <input type="file" hidden multiple accept="image/*" onChange={onImageChange} />
                     </Button>
                     </Grid>
-                    <Grid item xs={12} sm={12}>
                     {imageURLS.map((imageSrc,index) => (
+                    <Grid item xs={3} sm={3}>
                     <img key={index} src={imageSrc} alt="not fount" width={"250px"} />
-                      ))}
                     </Grid>
+                      ))}
 
                     <Grid item xs={12} sm={12}>
                     <InputLabel>Product Description</InputLabel>
