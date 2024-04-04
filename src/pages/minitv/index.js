@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react'
-import { alpha, styled } from '@mui/material/styles'
+import { alpha, styled } from '@mui/material/styles';
+
 
 // ** MUI Imports
 import {
@@ -15,7 +16,8 @@ import {
   Alert,
   Snackbar,
   Typography,
-  InputLabel
+  InputLabel,
+  Modal
 } from '@mui/material'
 
 import 'react-datepicker/dist/react-datepicker.css'
@@ -23,7 +25,7 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 // ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
-import {addMini_Tv_Media } from 'src/store/features/miniTvSlice'
+import {addMini_Tv_Media,getAll_MiniTv_Media,updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice'
 
 import DataTable from 'react-data-table-component'
 import Magnify from 'mdi-material-ui/Magnify'
@@ -32,10 +34,12 @@ import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
 import AddIcon from '@mui/icons-material/Add'
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
-import Switch from '@mui/material/Switch'
-import { pink } from '@mui/material/colors'
 import { customStyles } from 'src/Common'
 import CloseIcon from '@mui/icons-material/Close';
+import { StyledUpdateButton } from 'src/views/icons';
+import MiniTvModel from './miniTvModel';
+import VisibilitySharpIcon from '@mui/icons-material/VisibilitySharp';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 // table funtion
@@ -50,12 +54,10 @@ const InActive = styled('p')(() => ({
 
 const MiniTv = () => {
   const router = useRouter();
-  const categoryId = router.query.id;
   // -----------------------------------REDUX STORE ------------------------------------
   const dispatch = useDispatch();
-  const { allProducts:{productsList, loading, status,message} } = useSelector(state => state.productAndcategoryData)
-  let { allCategory } = useSelector(state => state.productAndcategoryData)
-  allCategory = allCategory.filter(e => e.productCategoryId == categoryId);
+  const { miniTvList, loading, status,message } = useSelector(state => state.miniTvData);
+
   // --------------------------------------UseState --------------------------------
   const [filter, setFilter] = useState([])
   const [search, setSearch] = useState('')
@@ -73,24 +75,42 @@ const MiniTv = () => {
   })
 
 
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    width: 'auto'
+  }
+
+
+  useEffect(() => {
+    dispatch(getAll_MiniTv_Media())
+  }, []);
+
   //------------------------------------Open & Close Modal ---------------------------
+
+  const handleOpen = id => {
+    setGetId(id)
+    setOpen(true)
+  };
 
   const handleClose = () => setOpen(false)
 
   const handleAddForm = () => {
     setFormVisible(prev => !prev)
-  }
+  };
 
 
+  const updateStatus = (miniTvId,isActive) => {
+    dispatch(updateMini_TvMedia_Status({miniTvId, formData:{isActive}})).then((x)=>showSuccessMessage('Status updated successfully')).then((x)=>dispatch(getAll_MiniTv_Media()));
+  };
 
-
-
-
-
-  const updateStatus = (productId,isTrue) => {
-    // dispatch(updateProduct_Status({productId, isTrue})).then((x)=>showSuccessMessage('Status updated successfully'));
-  }
-
+  
   // ------------------------------------------ React Data Table --------------------------------
   const columns = [
     {
@@ -100,27 +120,29 @@ const MiniTv = () => {
     },
     {
       name: 'Url',
-      selector: row => row.productName?.toUpperCase(),
+      selector: row => row.mediaUrl,
       sortable: true,
       grow:2,
       wrap: true
     },
     {
       name: 'Media',
-      selector: row => row.productBrand?.toUpperCase(),
+      selector: row => row.miniTvMedia,
       sortable: true,
       wrap: true,
       grow:2
     },
     {
       name: 'Status',
-      selector: row => (row.isActive ? <Button onClick={()=>updateStatus(row.productId,false)}><Active>Active</Active></Button> : <Button onClick={()=>updateStatus(row.productId,true)}><InActive>Inactive</InActive></Button>)
+      selector: row => (row.isActive ? <Button onClick={()=>updateStatus(row.miniTvId,false)}><Active>Active</Active></Button> : <Button onClick={()=>updateStatus(row.miniTvId,true)}><InActive>Inactive</InActive></Button>)
     },
     {
       name: 'Action',
       cell: row => (
         <>
-        {/* <StyledUpdateButton onClick={id => handleOpen(row.productId)} titleAccess='edit product' /> */}
+        <VisibilitySharpIcon onClick={() => router.push(`/minitv/${row.miniTvId}`)} titleAccess='view details' style={{cursor:"pointer"}} /> &nbsp; &nbsp;
+        <StyledUpdateButton onClick={() => handleOpen(row.miniTvId)} titleAccess='edit Mini Tv' /> &nbsp; &nbsp;
+        <DeleteIcon titleAccess='delete Mini Tv' style={{cursor:"pointer"}} />
         </>
       )
     }
@@ -137,12 +159,10 @@ const MiniTv = () => {
 
   const onImageChange =(e) => {
     const miniTvMedia = [...e.target.files];
-    const isVideo=['video/mp4'].includes(miniTvMedia[0].type)  ? true : false ;
+    const isVideo=['video/mp4'].includes(miniTvMedia[0]?.type)  ? true : false ;
     setImageURLs({...imageURLS,isVideo});
     setFormData({...formData,miniTvMedia})
     setImages([...e.target.files]);
-
-
   }
 
 
@@ -223,7 +243,11 @@ const MiniTv = () => {
       setFormData({...formData,productImage});
   };
   document.getElementById("chooseImageOrVideo").value = "";
-  }
+  };
+
+
+
+  
 
   return (
     <>
@@ -234,7 +258,7 @@ const MiniTv = () => {
             <form onSubmit={handleSubmit}>
               <CardContent>
                 <Typography variant='h6' sx={{ textAlign: 'left', margin: 0 }}>
-                  Add Media
+                  Add Mini Tv Media
                 </Typography>
                 <Divider />
                 <DatePickerWrapper>
@@ -255,7 +279,7 @@ const MiniTv = () => {
                     variant="contained"
                     component="label">
                       Upload File 
-                  <input type="file" id="chooseImageOrVideo" hidden onChange={onImageChange} />
+                  <input type="file" accept="image/*,video/*" id="chooseImageOrVideo" hidden onChange={onImageChange} />
                     </Button>
                     </Grid>
                     {imageURLS.list.map((imageSrc,index) => (
@@ -292,7 +316,7 @@ const MiniTv = () => {
           <DataTable
             customStyles={customStyles}
             columns={columns}
-            data={productsList}
+            data={miniTvList}
             pagination
             fixedHeader
             selectableRowsHighlight
@@ -335,6 +359,21 @@ const MiniTv = () => {
           />
         </Card>
       </Grid>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby='parent-modal-title'
+        aria-describedby='parent-modal-description'
+      >
+        <Box sx={{ ...style }}>
+          {<MiniTvModel getid={getid} handleClose={handleClose} showSuccessMessage={showSuccessMessage} />}
+        </Box>
+      </Modal>
+
+
+
+
       <Snackbar
         open={!!successMessage}
         autoHideDuration={3000}

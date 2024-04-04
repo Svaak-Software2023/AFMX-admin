@@ -47,8 +47,7 @@ import { useRouter } from 'next/router'
         fragrances: singleProduct.fragrances,
         containerType: singleProduct.containerType,
         cleanerForm: singleProduct.cleanerForm,
-        containerSize: singleProduct.containerSize,
-        // productImage: singleProduct.productImage
+        containerSize: singleProduct.containerSize
         })
   
         

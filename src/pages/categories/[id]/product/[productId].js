@@ -2,8 +2,16 @@ import React, { useEffect } from 'react'
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from 'react-redux'
 import { single_ProductBy_Id } from 'src/store/features/productAndcategorySlice'
-import { Card, Typography,CardActions,CardContent,CardMedia,Button, Box, ImageList, ImageListItem } from '@mui/material';
+import { Card, Typography,CardActions,CardContent,CardMedia,Button, Box, ImageList, ImageListItem, styled } from '@mui/material';
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
+
+const Active = styled('span')(() => ({
+  color: 'green'
+}))
+
+const InActive = styled('span')(() => ({
+  color: 'red'
+}))
 
 const productDetails = () => {
     const router = useRouter();
@@ -44,7 +52,7 @@ const productDetails = () => {
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>Price:<Box component='span' sx={{ marginLeft:"15px" }}>{productDetails?.productPrice}</Box></Typography>
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>Quantity:<Box component='span' sx={{ marginLeft:"15px" }}>{productDetails?.quantity}</Box></Typography>
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>Discount:<Box component='span' sx={{ marginLeft:"15px" }}>{productDetails?.discount}</Box></Typography>
-        <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>Status:<Box component='span' sx={{ marginLeft:"15px" }}>{(productDetails?.isActive)?.toString()?.toUpperCase()}</Box></Typography>
+        <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>Status:<Box component='span' sx={{ marginLeft:"15px" }}>{(productDetails?.isActive) ? <Active>Active</Active> : <InActive>InActive</InActive>}</Box></Typography>
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>createdDate:<Box component='span' sx={{ marginLeft:"15px" }}>{ (productDetails?.createdDate ? productDetails?.createdDate.split('T')[0] : 'N/A')}</Box></Typography>
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>updatedDate:<Box component='span' sx={{ marginLeft:"15px" }}>{ (productDetails?.updatedDate ? productDetails?.updatedDate.split('T')[0] : 'N/A')}</Box></Typography>
         <Typography sx={{ fontWeight: 500, marginBottom: 3 }}>Description:<Box component='span' sx={{ marginLeft:"15px" }}>{productDetails?.productDescription}</Box></Typography>

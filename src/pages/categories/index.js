@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { alpha, styled } from '@mui/material/styles'
 
 // ** MUI Imports
@@ -25,7 +26,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 
 import 'react-datepicker/dist/react-datepicker.css'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons'
+import { StyledUpdateButton, StyledDeleteButton } from 'src/views/icons';
 
 // ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -41,7 +42,8 @@ import CategoriesModel from './categoriesModel'
 import Switch from '@mui/material/Switch'
 import { pink } from '@mui/material/colors'
 import { customStyles } from 'src/Common'
-import Link from 'next/link'
+import Link from 'next/link';
+import VisibilitySharpIcon from '@mui/icons-material/VisibilitySharp';
 
 const PinkSwitch = styled(Switch)(({ theme }) => ({
   '& .MuiSwitch-switchBase.Mui-checked': {
@@ -80,6 +82,7 @@ const style = {
 }
 
 const Index = () => {
+  const router = useRouter();
   // -----------------------------------REDUX STORE ------------------------------------
   const dispatch = useDispatch();
   const { allCategory, loading, status } = useSelector(state => state.productAndcategoryData)
@@ -160,7 +163,7 @@ console.log('allProducts----------------',allCategory);
       name: 'Actions',
       cell: row => (
         <>
-        <Link href={`/categories/${row.productCategoryId}/products`} color='success'>View</Link>  &nbsp; &nbsp;
+        <VisibilitySharpIcon onClick={() => router.push(`/categories/${row.productCategoryId}/products`)} titleAccess='view products' style={{cursor:"pointer"}} /> &nbsp; &nbsp;
         <StyledUpdateButton onClick={id => handleOpen(row.productCategoryId)} titleAccess='edit category' />
         </>
       )

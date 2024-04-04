@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://localhost:5000/api'
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_baseURL;
 
-const serviceApi = 'http://localhost:5000/api/create-service'
+const serviceApi = process.env.NEXT_PUBLIC_baseURL + '/create-service';
 
 // Get All Services Data
 export const getServicesData = async () => {

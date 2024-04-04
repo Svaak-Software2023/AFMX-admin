@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://localhost:5000/api'
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_baseURL;
 
 export const updateComplaintStatus = async (id, statusData) => {
   console.log('service>>>>Id:', id, 'Status:', statusData)

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { addMiniTvMedia } from '../ApiServices/miniTvService'
+import { addMiniTvMedia, getAllMiniTvMedia, updateMiniTvMediaStatus } from '../ApiServices/miniTvService'
 
 
 
@@ -8,6 +8,25 @@ import { addMiniTvMedia } from '../ApiServices/miniTvService'
 export const addMini_Tv_Media = createAsyncThunk("/mini/tv/upload-media/", async (formData) => {
     try {
         const response = await addMiniTvMedia(formData);
+        return response
+    } catch (err) {
+        return err.response
+    }
+});
+
+
+export const getAll_MiniTv_Media = createAsyncThunk("/mini-tv/get-media/", async () => {
+    try {
+        const response = await getAllMiniTvMedia();
+        return response
+    } catch (err) {
+        return err.response
+    }
+});
+
+export const updateMini_TvMedia_Status = createAsyncThunk("/mini-tv/updateAndDelete-/media/", async ({miniTvId, formData}) => {
+    try {
+        const response = await updateMiniTvMediaStatus({miniTvId, formData});
         return response
     } catch (err) {
         return err.response
@@ -37,6 +56,21 @@ const miniTvSlice = createSlice({
             state.status = 'succeeded'
         },
         [addMini_Tv_Media.rejected]:(state,action)=>{
+            state.loading=false
+            state.error=action.payload
+            state.status = 'failed'
+        },
+        [getAll_MiniTv_Media.pending]:(state,action)=>{
+            state.loading=true
+            state.status = 'loading'
+        },
+        [getAll_MiniTv_Media.fulfilled]:(state,action)=>{
+            state.message = action.payload?.message
+            state.loading=false
+            state.miniTvList = action.payload?.miniTvGetSingleResponse
+            state.status = 'succeeded'
+        },
+        [getAll_MiniTv_Media.rejected]:(state,action)=>{
             state.loading=false
             state.error=action.payload
             state.status = 'failed'

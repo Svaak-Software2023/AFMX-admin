@@ -45,6 +45,7 @@ import { pink } from '@mui/material/colors'
 import { customStyles } from 'src/Common'
 import Link from 'next/link'
 import CloseIcon from '@mui/icons-material/Close';
+import VisibilitySharpIcon from '@mui/icons-material/VisibilitySharp';
 
 const PinkSwitch = styled(Switch)(({ theme }) => ({
   '& .MuiSwitch-switchBase.Mui-checked': {
@@ -194,7 +195,7 @@ const Products = () => {
       name: 'Product',
       cell: row => (
         <>
-        <Link href={`/categories/${categoryId}/product/${row.productId}`}   color='success'>View</Link> &nbsp; &nbsp;
+        <VisibilitySharpIcon onClick={() => router.push(`/categories/${categoryId}/product/${row.productId}`)} titleAccess='view details' style={{cursor:"pointer"}} /> &nbsp; &nbsp;
         <StyledUpdateButton onClick={id => handleOpen(row.productId)} titleAccess='edit product' />
         </>
       )

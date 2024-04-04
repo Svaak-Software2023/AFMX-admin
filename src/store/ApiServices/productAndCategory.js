@@ -1,7 +1,7 @@
 import { Alert } from '@mui/material';
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://localhost:5000/api'
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_baseURL;
 
 
 // Get All categories Details
@@ -99,7 +99,7 @@ export const updateProductStatus = async (productId, isTrue) => {
 
 export const updateProduct = async (productId,form_Data) => {
   try {
-    const formData = new FormData();
+    let formData = new FormData();
     for (const [key, val] of Object.entries(form_Data)){
       if(key === 'productImage'){
         for(const img of val){
