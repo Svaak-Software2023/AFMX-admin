@@ -27,20 +27,20 @@ const StateModel = props => {
   const dispatch = useDispatch()
   const countryData = useSelector(state => state.countryData.data)
 
-  const stateId = singleState.stateId
+  const stateId = singleState?.stateId
 
   const countryName = () => {
-    const data = countryData.find(i => i.countryId === singleState.countryId)
-    console.log(data.countryName)
+    const data = countryData.find(i => i?.countryId == singleState?.countryId)
+    console.log(data?.countryName)
 
-    return data.countryName
+    return data?.countryName
   }
 
   const [editedState, setEditedState] = useState({
-    countryId: singleState.countryId,
-    stateName: singleState.stateName,
+    countryId: singleState?.countryId,
+    stateName: singleState?.stateName,
 
-    isActive: singleState.isActive
+    isActive: singleState?.isActive
   })
 
   console.log(editedState)
@@ -85,7 +85,7 @@ const StateModel = props => {
                   <TextField
                     fullWidth
                     label='State Name'
-                    value={editedState.stateName}
+                    value={editedState?.stateName}
                     onChange={e => handleTextFieldChange('stateName', e.target.value)}
                   />
                 </Grid>
@@ -95,7 +95,7 @@ const StateModel = props => {
                     <InputLabel>Status</InputLabel>
                     <Select
                       label='Status'
-                      defaultValue={editedState.isActive}
+                      defaultValue={editedState?.isActive}
                       onChange={e => handleTextFieldChange('isActive', e.target.value)}
                     >
                       <MenuItem value={true}>Active</MenuItem>

@@ -28,18 +28,17 @@ const Model = props => {
 
   // const serviceDepartmentData = useSelector(state => state.serviceDepartmentData.data)
 
-  const { serviceDepartmentName, isActive } = singleServiceDepartment
 
   const [editedServiceDepartment, setEditedServiceDepartment] = useState({
-    serviceDepartmentName: serviceDepartmentName,
-    isActive: isActive
+    serviceDepartmentName: singleServiceDepartment?.serviceDepartmentName,
+    isActive: singleServiceDepartment?.isActive
   })
 
   const handleUpdate = e => {
     e.preventDefault()
     try {
       dispatch(
-        updateServiceDepartment({ id: singleServiceDepartment.serviceDepartmentId, data: editedServiceDepartment })
+        updateServiceDepartment({ id: singleServiceDepartment?.serviceDepartmentId, data: editedServiceDepartment })
       )
       handleClose()
       dispatch(getServiceDepartment())
@@ -67,7 +66,7 @@ const Model = props => {
                   <TextField
                     fullWidth
                     label='Service Department Name'
-                    value={editedServiceDepartment.serviceDepartmentName}
+                    value={editedServiceDepartment?.serviceDepartmentName}
                     onChange={e => handleTextFieldChange('serviceDepartmentName', e.target.value)}
                   />
                 </Grid>
@@ -77,7 +76,7 @@ const Model = props => {
                     <InputLabel>Status</InputLabel>
                     <Select
                       label='Status'
-                      defaultValue={editedServiceDepartment.isActive}
+                      defaultValue={editedServiceDepartment?.isActive}
                       onChange={e => handleTextFieldChange('isActive', e.target.value)}
                     >
                       <MenuItem value={true}>Active</MenuItem>

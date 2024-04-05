@@ -37,7 +37,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { SiMicrosoftexcel } from 'react-icons/si'
 import * as XLSX from 'xlsx'
 import AddIcon from '@mui/icons-material/Add'
-import ProductModel from './productModel'
+import ProductModel from './productModel';
 import PublicIcon from '@mui/icons-material/Public'
 import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 import Switch from '@mui/material/Switch'
@@ -88,12 +88,16 @@ const Products = () => {
   const router = useRouter();
   const categoryId = router.query.id;
   const slug = router.query.slug;
+  
   // -----------------------------------REDUX STORE ------------------------------------
+
   const dispatch = useDispatch();
   const { allProducts:{productsList, loading, status,message} } = useSelector(state => state.productAndcategoryData)
   let { allCategory } = useSelector(state => state.productAndcategoryData)
   allCategory = allCategory.filter(e => e.productCategoryId == categoryId);
+
   // --------------------------------------UseState --------------------------------
+
   const [filter, setFilter] = useState([])
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
@@ -140,7 +144,7 @@ const Products = () => {
       dispatch(allProduct_By_CategoryId(categoryId))
     }
    
-  }, [categoryId])
+  },[categoryId])
 
   useEffect(() => {
     dispatch(getProductAndcategory())
@@ -260,12 +264,16 @@ const Products = () => {
 
   function checkProperties(obj) {
     if(!obj.productName && !obj.productCategoryName && !obj.productBrand && !obj.quantity && !obj.productMRP && !obj.productPrice && !obj.upcCode && !obj.skuCode && !obj.discount && !obj.fragrances && !obj.containerType && !obj.cleanerForm && !obj.containerSize && !obj.productDescription && !obj.productImage.length){
+
       return true
     }
+
     return false
+
     }
 
   // ----------------Delete ----------
+
   const handleDelete = async id => {
     // try {
     //   const data = await data?.find(i => i.countryId === id)
@@ -476,8 +484,8 @@ const Products = () => {
                     </Button>
                     </Grid>
                     {imageURLS.map((imageSrc,index) => (
-                    <Grid item xs={3} sm={3}>
-                    <img key={index} src={imageSrc} alt="not fount" width={"250px"} />
+                    <Grid item xs={3} sm={3} key={index}>
+                    <img src={imageSrc} alt="not fount" width={"250px"} />
                     <CloseIcon onClick={()=>deleteImage(imageSrc,index)} />
                     </Grid>
                       ))}

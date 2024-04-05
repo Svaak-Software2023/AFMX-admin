@@ -18,6 +18,7 @@ import HomeRepairServiceIcon from '@mui/icons-material/HomeRepairService'
 import CategoryIcon from '@mui/icons-material/Category';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import LiveTvIcon from '@mui/icons-material/LiveTv';
+import AppsOutageIcon from '@mui/icons-material/AppsOutage';
 
 const navigation = () => {
   return [
@@ -90,6 +91,14 @@ const navigation = () => {
       icon: ShoppingCartCheckoutIcon,
       path: '/orders'
     },
+    {
+      sectionTitle: 'Complaints'
+    },
+    {
+      title: 'Complaint Portal',
+      icon: AppsOutageIcon,
+      path: '/complainPortal'
+    },
 
     {
       sectionTitle: 'Pages'
@@ -106,40 +115,40 @@ const navigation = () => {
       path: '/pages/register',
       openInNewTab: true
     },
-    {
-      title: 'Error',
-      icon: AlertCircleOutline,
-      path: '/pages/error',
-      openInNewTab: true
-    },
-    {
-      sectionTitle: 'User Interface'
-    },
-    {
-      title: 'Typography',
-      icon: FormatLetterCase,
-      path: '/typography'
-    },
-    {
-      title: 'Icons',
-      path: '/icons',
-      icon: GoogleCirclesExtended
-    },
-    {
-      title: 'Cards',
-      icon: CreditCardOutline,
-      path: '/cards'
-    },
-    {
-      title: 'Tables',
-      icon: Table,
-      path: '/tables'
-    },
-    {
-      icon: CubeOutline,
-      title: 'Form Layouts',
-      path: '/form-layouts'
-    }
+    // {
+    //   title: 'Error',
+    //   icon: AlertCircleOutline,
+    //   path: '/pages/error',
+    //   openInNewTab: true
+    // },
+    // {
+    //   sectionTitle: 'User Interface'
+    // },
+    // {
+    //   title: 'Typography',
+    //   icon: FormatLetterCase,
+    //   path: '/typography'
+    // },
+    // {
+    //   title: 'Icons',
+    //   path: '/icons',
+    //   icon: GoogleCirclesExtended
+    // },
+    // {
+    //   title: 'Cards',
+    //   icon: CreditCardOutline,
+    //   path: '/cards'
+    // },
+    // {
+    //   title: 'Tables',
+    //   icon: Table,
+    //   path: '/tables'
+    // },
+    // {
+    //   icon: CubeOutline,
+    //   title: 'Form Layouts',
+    //   path: '/form-layouts'
+    // }
   ]
 }
 

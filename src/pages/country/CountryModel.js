@@ -29,17 +29,18 @@ const CountryModel = ({ handleClose, getid, showSuccessMessage }) => {
   const dispatch = useDispatch()
   const countryData = useSelector(state => state.countryData.data)
 
-  const singleCountry = countryData?.find(i => i.countryId === getid)
+  const singleCountry = countryData?.find(i => i?.countryId == getid);
+  
+  console.log('singleCountry----------->>>>>>>>>>>>>>>>>',singleCountry);
 
-  const { countryId } = singleCountry
 
   // --------------------------- Use State -------------------------------
   const [editedCountry, setEditedCountry] = useState({
-    countryName: singleCountry.countryName,
-    countryShortName: singleCountry.countryShortName,
-    countryPhoneCode: singleCountry.countryPhoneCode,
+    countryName: singleCountry?.countryName,
+    countryShortName: singleCountry?.countryShortName,
+    countryPhoneCode: singleCountry?.countryPhoneCode,
 
-    isActive: singleCountry.isActive
+    isActive: singleCountry?.isActive
   })
 
   // -------------------------- Handle Change --------------------------------
@@ -54,7 +55,7 @@ const CountryModel = ({ handleClose, getid, showSuccessMessage }) => {
   const handleUpdate = e => {
     e.preventDefault()
 
-    dispatch(updateCountry({ id: countryId, data: editedCountry }))
+    dispatch(updateCountry({ id: singleCountry?.countryId, data: editedCountry }))
     dispatch(getCountry())
     handleClose()
     showSuccessMessage('Country updated successfully')
@@ -73,7 +74,7 @@ const CountryModel = ({ handleClose, getid, showSuccessMessage }) => {
                   <TextField
                     fullWidth
                     label='Country Name'
-                    value={editedCountry.countryName}
+                    value={editedCountry?.countryName}
                     onChange={e => handleTextFieldChange('countryName', e.target.value)}
                   />
                 </Grid>
@@ -82,7 +83,7 @@ const CountryModel = ({ handleClose, getid, showSuccessMessage }) => {
                   <TextField
                     fullWidth
                     label='Country Short Name'
-                    value={editedCountry.countryShortName}
+                    value={editedCountry?.countryShortName}
                     onChange={e => handleTextFieldChange('countryShortName', e.target.value)}
                   />
                 </Grid>
@@ -90,7 +91,7 @@ const CountryModel = ({ handleClose, getid, showSuccessMessage }) => {
                   <TextField
                     fullWidth
                     label='Country Phone Code'
-                    value={editedCountry.countryPhoneCode}
+                    value={editedCountry?.countryPhoneCode}
                     onChange={e => handleTextFieldChange('countryPhoneCode', e.target.value)}
                   />
                 </Grid>
@@ -100,7 +101,7 @@ const CountryModel = ({ handleClose, getid, showSuccessMessage }) => {
                     <InputLabel>Status</InputLabel>
                     <Select
                       label='Status'
-                      defaultValue={editedCountry.isActive}
+                      defaultValue={editedCountry?.isActive}
                       onChange={e => handleTextFieldChange('isActive', e.target.value)}
                     >
                       <MenuItem value={true}>Active</MenuItem>

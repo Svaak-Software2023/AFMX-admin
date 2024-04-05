@@ -22,20 +22,23 @@ import { useRouter } from 'next/router'
 import CloseIcon from '@mui/icons-material/Close';
 import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
   
-  const miniTvModel = ({ handleClose, getid, showSuccessMessage }) => {
+  const MiniTvModel = ({ handleClose, getid, showSuccessMessage }) => {
+
     // --------------- Redux Store -----------------------
-    const dispatch = useDispatch()
+
+    const dispatch = useDispatch();
+
     const { miniTvList, loading, status,message } = useSelector(state => state.miniTvData);
     const singleMiniTv = miniTvList?.find(i => i.miniTvId === getid);
 
-    console.log('//////singleMiniTv////,,,,,,,,,,,,,,,',singleMiniTv);
 
   
     // --------------------------- Use State -------------------------------
     const [images, setImages] = useState([]);
     const [imageURLS, setImageURLs] = useState({isVideo:false,list:[]});
+
     const [editedMiniTv, setEditedMiniTv] = useState({
-        mediaUrl: singleMiniTv.mediaUrl,
+        mediaUrl: singleMiniTv?.mediaUrl,
         
         })
   
@@ -55,7 +58,9 @@ import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
           [name]: value
         })
       };
+
     //------------------------------Update Action --------------------------------
+
     const handleUpdate = e => {
       e.preventDefault();
       console.log('form',editedMiniTv);
@@ -64,8 +69,8 @@ import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
 
     useEffect(()=>{
         const {length,...restMedia} = singleMiniTv?.miniTvMedia?.split(".") || [];
-        setImageURLs({isVideo:([restMedia[+length - 1]].includes('mp4')),list:[singleMiniTv.miniTvMedia]})
-    },[singleMiniTv.miniTvMedia])
+        setImageURLs({isVideo:([restMedia[+length - 1]].includes('mp4')),list:[singleMiniTv?.miniTvMedia]})
+    },[singleMiniTv?.miniTvMedia])
 
     useEffect(() => {
         if (images.length < 1) return;
@@ -86,7 +91,7 @@ import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
 
       const deleteImage = (img,index) => {
         const miniTvMedia = images.filter((x,i)=>  x !== img && i!== index );
-        if(miniTvMedia.length===0){
+        if(miniTvMedia?.length===0){
           setImages([]);
           setImageURLs({isVideo:false,list:[]});
         }else {
@@ -118,7 +123,7 @@ import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
                         fullWidth
                         name='mediaUrl'
                         placeholder='Enter Media Url'
-                        value={editedMiniTv.mediaUrl}
+                        value={editedMiniTv?.mediaUrl}
                         onChange={handleChange}
                       />
                     </Grid>
@@ -132,14 +137,14 @@ import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
                     </Button>
                     </Grid>
                     {imageURLS.list.map((imageSrc,index) => (
-                    <Grid item xs={3} sm={3}>
+                    <Grid item xs={3} sm={3} key={index}>
                     {(imageURLS.isVideo) ? (
-                      <video width="400" controls key={index+1}>
+                      <video width="400" controls>
                         <source src={imageSrc} type="video/mp4" />
                           Your browser does not support HTML video.
                       </video>
                     ) 
-                     : (<img key={index} src={imageSrc} alt="not fount" width={"250px"} />)}
+                     : (<img src={imageSrc} alt="not fount" width={"250px"} />)}
                     <CloseIcon onClick={()=>deleteImage(imageSrc,index)} style={{cursor:"pointer"}} />
                     </Grid>
                       ))}
@@ -159,5 +164,5 @@ import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
     )
   }
   
-  export default miniTvModel
+  export default MiniTvModel
   

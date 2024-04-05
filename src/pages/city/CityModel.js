@@ -27,17 +27,17 @@ const CityModel = ({ singleCity, handleClose, ShowSuccessMessage }) => {
   const stateData = useSelector(state => state.stateData.data)
 
   const stateName = () => {
-    const data = stateData?.find(i => i.stateId === singleCity.stateId)
+    const data = stateData?.find(i => i?.stateId === singleCity?.stateId)
 
-    return data.stateName
+    return data?.stateName
   }
 
   //-------------------------------------- Use State ----------------------------
   const [editedCity, setEditedCity] = useState({
-    stateId: singleCity.stateId,
-    cityName: singleCity.cityName,
+    stateId: singleCity?.stateId,
+    cityName: singleCity?.cityName,
 
-    isActive: singleCity.isActive
+    isActive: singleCity?.isActive
   })
 
   const handleTextFieldChange = (field, value) => {
@@ -81,7 +81,7 @@ const CityModel = ({ singleCity, handleClose, ShowSuccessMessage }) => {
                   <TextField
                     fullWidth
                     label='City Name'
-                    value={editedCity.cityName}
+                    value={editedCity?.cityName}
                     onChange={e => handleTextFieldChange('cityName', e.target.value)}
                   />
                 </Grid>

@@ -54,7 +54,9 @@ const InActive = styled('p')(() => ({
 
 const MiniTv = () => {
   const router = useRouter();
+
   // -----------------------------------REDUX STORE ------------------------------------
+
   const dispatch = useDispatch();
   const { miniTvList, loading, status,message } = useSelector(state => state.miniTvData);
 
@@ -195,9 +197,13 @@ const MiniTv = () => {
 
   function checkProperties(obj) {
     if(!obj.mediaUrl && !obj.miniTvMedia.length){
+
       return true
+
     }
+
     return false
+
     }
 
   // ----------------Delete ----------
@@ -283,14 +289,14 @@ const MiniTv = () => {
                     </Button>
                     </Grid>
                     {imageURLS.list.map((imageSrc,index) => (
-                    <Grid item xs={3} sm={3}>
+                    <Grid item xs={3} sm={3} key={index}>
                     {(imageURLS.isVideo) ? (
-                      <video width="400" controls key={index+1}>
+                      <video width="400" controls>
                         <source src={imageSrc} type="video/mp4" />
                           Your browser does not support HTML video.
                       </video>
                     ) 
-                     : (<img key={index} src={imageSrc} alt="not fount" width={"250px"} />)}
+                     : (<img src={imageSrc} alt="not fount" width={"250px"} />)}
                     <CloseIcon onClick={()=>deleteImage(imageSrc,index)} style={{cursor:"pointer"}} />
                     </Grid>
                       ))}

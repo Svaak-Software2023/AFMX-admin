@@ -20,34 +20,35 @@ import {
   import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import { useRouter } from 'next/router'
   
-  const productModel = ({ handleClose, getid, showSuccessMessage }) => {
+  const ProductModel = ({ handleClose, getid, showSuccessMessage }) => {
     // --------------- Redux Store -----------------------
     const dispatch = useDispatch()
     const { allProducts:{productsList,status} } = useSelector(state => state.productAndcategoryData);
     const singleProduct = productsList?.find(i => i.productId === getid);
     const { allCategory } = useSelector(state => state.productAndcategoryData);
 
-    console.log('//////////,,,,,,,,,,,,,,,',singleProduct.productImage);
+    console.log('//////////,,,,,,,,,,,,,,,',singleProduct?.productImage);
 
   
     // --------------------------- Use State -------------------------------
     const [images, setImages] = useState([]);
     const [imageURLS, setImageURLs] = useState([]);
+
     const [editedProduct, setEditedProduct] = useState({
-        productName: singleProduct.productName,
-        productDescription: singleProduct.productDescription,
-        productCategoryName: allCategory.find(e => e.productCategoryId === singleProduct.productCategoryId)?.productCategoryName,
-        productBrand: singleProduct.productBrand,
-        quantity: singleProduct.quantity,
-        productMRP: singleProduct.productMRP,
-        productPrice: singleProduct.productPrice,
-        upcCode: singleProduct.upcCode,
-        skuCode: singleProduct.skuCode,
-        discount: singleProduct.discount,
-        fragrances: singleProduct.fragrances,
-        containerType: singleProduct.containerType,
-        cleanerForm: singleProduct.cleanerForm,
-        containerSize: singleProduct.containerSize
+        productName: singleProduct?.productName,
+        productDescription: singleProduct?.productDescription,
+        productCategoryName: allCategory.find(e => e?.productCategoryId === singleProduct?.productCategoryId)?.productCategoryName,
+        productBrand: singleProduct?.productBrand,
+        quantity: singleProduct?.quantity,
+        productMRP: singleProduct?.productMRP,
+        productPrice: singleProduct?.productPrice,
+        upcCode: singleProduct?.upcCode,
+        skuCode: singleProduct?.skuCode,
+        discount: singleProduct?.discount,
+        fragrances: singleProduct?.fragrances,
+        containerType: singleProduct?.containerType,
+        cleanerForm: singleProduct?.cleanerForm,
+        containerSize: singleProduct?.containerSize
         })
   
         
@@ -66,14 +67,14 @@ import { useRouter } from 'next/router'
     }
 
     useEffect(()=>{
-        setImageURLs([...singleProduct.productImage])
-    },[singleProduct.productImage])
+        setImageURLs([...singleProduct?.productImage])
+    },[singleProduct?.productImage])
 
     useEffect(() => {
         if (images.length < 1) return;
         const newImageUrls = [];
         images.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
-        setImageURLs([...singleProduct.productImage,...newImageUrls]);
+        setImageURLs([...singleProduct?.productImage,...newImageUrls]);
       }, [images]);
 
     const onImageChange =(e) => {
@@ -86,7 +87,7 @@ import { useRouter } from 'next/router'
     return (
       <>
        <Card>
-        {editedProduct.productName && (
+        {editedProduct?.productName && (
           <>
             <form onSubmit={handleUpdate}>
               <CardContent>
@@ -102,7 +103,7 @@ import { useRouter } from 'next/router'
                         label='Product Name'
                         name='productName'
                         placeholder='Enter Product Name'
-                        value={editedProduct.productName}
+                        value={editedProduct?.productName}
                         onChange={e => handleTextFieldChange('productName', e.target.value)}
                         isRequired={true}
                       />
@@ -111,7 +112,7 @@ import { useRouter } from 'next/router'
                        <Grid item xs={12} sm={6}>
                       <FormControl fullWidth>
                         <InputLabel>Category Name</InputLabel>
-                        <Select label='Select Category Name' name='productCategoryName' value={editedProduct.productCategoryName} onChange={e => handleTextFieldChange('productCategoryName', e.target.value)}>
+                        <Select label='Select Category Name' name='productCategoryName' value={editedProduct?.productCategoryName} onChange={e => handleTextFieldChange('productCategoryName', e.target.value)}>
                           {(allCategory.map(({_id,productCategoryName})=>(
                             <MenuItem value={productCategoryName} key={_id} >{productCategoryName}</MenuItem>
                           )))}
@@ -125,7 +126,7 @@ import { useRouter } from 'next/router'
                         label='Brand Name'
                         name='productBrand'
                         placeholder='Enter Brand Name'
-                        value={editedProduct.productBrand}
+                        value={editedProduct?.productBrand}
                         onChange={e => handleTextFieldChange('productBrand', e.target.value)}
                         isRequired={true}
                       />
@@ -136,7 +137,7 @@ import { useRouter } from 'next/router'
                         label='Quantity'
                         name='quantity'
                         placeholder='Enter Quantity'
-                        value={editedProduct.quantity}
+                        value={editedProduct?.quantity}
                         onChange={e => handleTextFieldChange('quantity', e.target.value)}
                         isRequired={true}
                       />
@@ -147,7 +148,7 @@ import { useRouter } from 'next/router'
                         label='MRP'
                         name='productMRP'
                         placeholder='Enter MRP'
-                        value={editedProduct.productMRP}
+                        value={editedProduct?.productMRP}
                         onChange={e => handleTextFieldChange('productMRP', e.target.value)}
                         isRequired={true}
                       />
@@ -158,7 +159,7 @@ import { useRouter } from 'next/router'
                         label='Price'
                         name='productPrice'
                         placeholder='Enter Price'
-                        value={editedProduct.productPrice}
+                        value={editedProduct?.productPrice}
                         onChange={e => handleTextFieldChange('productPrice', e.target.value)}
                         isRequired={true}
                       />
@@ -169,7 +170,7 @@ import { useRouter } from 'next/router'
                         label='UPC Code'
                         name='upcCode'
                         placeholder='Enter UPC'
-                        value={editedProduct.upcCode}
+                        value={editedProduct?.upcCode}
                         onChange={e => handleTextFieldChange('upcCode', e.target.value)}
                         isRequired={true}
                       />
@@ -180,7 +181,7 @@ import { useRouter } from 'next/router'
                         label='SKU Code'
                         name='skuCode'
                         placeholder='Enter SKU'
-                        value={editedProduct.skuCode}
+                        value={editedProduct?.skuCode}
                         onChange={e => handleTextFieldChange('skuCode', e.target.value)}
                         isRequired={true}
                       />
@@ -191,7 +192,7 @@ import { useRouter } from 'next/router'
                         label='Discount '
                         name='discount'
                         placeholder='Enter Discount'
-                        value={editedProduct.discount}
+                        value={editedProduct?.discount}
                         onChange={e => handleTextFieldChange('discount', e.target.value)}
                         isRequired={true}
                       />
@@ -202,7 +203,7 @@ import { useRouter } from 'next/router'
                         label='Fragrances '
                         name='fragrances'
                         placeholder='Enter Fragrances'
-                        value={editedProduct.fragrances}
+                        value={editedProduct?.fragrances}
                         onChange={e => handleTextFieldChange('fragrances', e.target.value)}
                         isRequired={true}
                       />
@@ -213,7 +214,7 @@ import { useRouter } from 'next/router'
                         label='Container Type '
                         name='containerType'
                         placeholder='Enter Container Type'
-                        value={editedProduct.containerType}
+                        value={editedProduct?.containerType}
                         onChange={e => handleTextFieldChange('containerType', e.target.value)}
                         isRequired={true}
                       />
@@ -224,7 +225,7 @@ import { useRouter } from 'next/router'
                         label='Cleaner Form'
                         name='cleanerForm'
                         placeholder='Enter Cleaner Form'
-                        value={editedProduct.cleanerForm}
+                        value={editedProduct?.cleanerForm}
                         onChange={e => handleTextFieldChange('cleanerForm', e.target.value)}
                         isRequired={true}
                       />
@@ -235,7 +236,7 @@ import { useRouter } from 'next/router'
                         label='Container Size'
                         name='containerSize'
                         placeholder='Enter Container Size'
-                        value={editedProduct.containerSize}
+                        value={editedProduct?.containerSize}
                         onChange={e => handleTextFieldChange('containerSize', e.target.value)}
                         isRequired={true}
                       />
@@ -249,8 +250,8 @@ import { useRouter } from 'next/router'
                     </Button>
                     </Grid>
                     {imageURLS.map((imageSrc,index) => (
-                    <Grid item xs={3} sm={3}>
-                    <img key={index} src={imageSrc} alt="not fount" width={"250px"} />
+                    <Grid item xs={3} sm={3} key={index}>
+                    <img src={imageSrc} alt="not fount" width={"250px"} />
                     </Grid>
                       ))}
 
@@ -261,7 +262,7 @@ import { useRouter } from 'next/router'
                         isRequired={true}
                         name='productDescription'
                         label='Product Description'
-                        value={editedProduct.productDescription}
+                        value={editedProduct?.productDescription}
                         onChange={e => handleTextFieldChange('productDescription', e.target.value)}
                         minRows={10}
                         cols={155}
@@ -283,5 +284,5 @@ import { useRouter } from 'next/router'
     )
   }
   
-  export default productModel
+  export default ProductModel
   

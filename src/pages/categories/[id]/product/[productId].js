@@ -13,22 +13,22 @@ const InActive = styled('span')(() => ({
   color: 'red'
 }))
 
-const productDetails = () => {
+const ProductDetails = () => {
+
     const router = useRouter();
+
     const productId = router.query.productId;
-    console.log('/',productId);
+
     const dispatch = useDispatch();
 
     const { singleProduct:{productDetails, loading, status,message} } = useSelector(state => state.productAndcategoryData)
-    console.log('productDetails----productDetails------------',productDetails);
 
 
     useEffect(() => {
       if(productId){
         dispatch(single_ProductBy_Id(productId))
       }
-     
-    }, [productId])
+    },[productId])
 
 
 
@@ -76,7 +76,7 @@ const productDetails = () => {
   )
 }
 
-export default productDetails
+export default ProductDetails
 
 
 

@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx'
 
 import DataTable from 'react-data-table-component'
 import { getComplaints } from 'src/store/features/complaintsSlice'
-import { StyledUpdateButton, StyledViewButton, exportToExcel } from 'src/views/icons'
+import { StyledUpdateButton, StyledViewButton } from 'src/views/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import Switch from '@mui/material/Switch'
 import { pink } from '@mui/material/colors'
@@ -16,6 +16,8 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
 import Link from 'next/link'
 import { customStyles } from 'src/Common'
 import { allRemark } from 'src/store/features/remarkSlice'
+import { useRouter } from 'next/router';
+import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 
 const PinkSwitch = styled(Switch)(({ theme }) => ({
   '& .MuiSwitch-switchBase.Mui-checked': {
@@ -46,7 +48,10 @@ const style = {
 }
 
 const TotalComplaints = () => {
+  const router = useRouter();
+
   //-----------------------------Use States ------------------------------
+  
   const [search, setSearch] = useState('')
   const [toggle, setToggle] = useState(true)
   const [filter, setFilter] = useState([])
@@ -194,18 +199,20 @@ const TotalComplaints = () => {
   // ---------------------------------Filter Data --------------------------------
 
   //------------------------------------Export Table into Excel ------------------------
-  // const exportToExcel = () => {
-  //   const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
-  //   const wb = XLSX.utils.book_new()
-  //   XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1')
-  //   XLSX.writeFile(wb, 'Complaint_data.xlsx')
-  // }
+
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filter.length > 0 ? filter : data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1')
+    XLSX.writeFile(wb, 'Complaint_data.xlsx')
+  }
 
   return (
     <>
       <Grid item xs={12} mt={2}>
         <Typography sx={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
-          Complaint Portal &gt; Total Complaint
+        <span style={{cursor:"pointer"}} onClick={() => router.back()} title="go back"><TurnLeftIcon /> &nbsp;  Complaint Portal &gt; Total Complaint</span>
+
         </Typography>
         <Card>
           <Divider sx={{ margin: '0' }} />

@@ -212,9 +212,10 @@ const FormLayoutsSeparator = () => {
 
   useEffect(() => {
     const result = data?.filter(item => {
-      const country = item.countryName.toLowerCase().includes(search.toLowerCase())
-      const countryShortName = item.countryShortName.toLowerCase().includes(search.toLowerCase())
-      const countryPhoneCode = item.countryPhoneCode.toLowerCase().includes(search.toLowerCase())
+      const country = item.countryName.toLowerCase().includes(search.toLowerCase());
+      const countryShortName = item.countryShortName.toLowerCase().includes(search.toLowerCase());
+      const countryPhoneCode = item.countryPhoneCode.toLowerCase().includes(search.toLowerCase());
+
       return country || countryShortName || countryPhoneCode
     })
     setFilter(result)

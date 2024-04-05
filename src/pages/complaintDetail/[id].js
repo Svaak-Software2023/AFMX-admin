@@ -56,25 +56,10 @@ const SingleComplaint = () => {
   const complaintData = useSelector(state => state.complaintsData.data)
   const remarkData = useSelector(state => state.remarkData.data)
 
-  const complaint = complaintData.find(i => i.complaintId === Number(id))
+  const complaint = complaintData.find(i => i?.complaintId === Number(id))
 
-  const {
-    complaintId,
-    customerName,
-    customerPhone,
-    customerEmail,
-    complaintServiceName,
-    complaintType,
-    complaintAddress,
-    dateOfIncedent,
-    complaintMessage,
-    createdBy,
-    desireOutcome,
 
-    complaineeId
-  } = complaint
-
-  const singleComplaintRemarks = remarkData?.find(item => item.complaintId === Number(id))
+  const singleComplaintRemarks = remarkData?.find(item => item?.complaintId == Number(id))
 
   // const allRemarks = singleComplaintRemarks.remarks
 
@@ -109,19 +94,19 @@ const SingleComplaint = () => {
     let formData = {}
     formData.complaintStatusId = status
     formData.remarks = {
-      complaintAssigneeId: complaineeId,
+      complaintAssigneeId: complaint?.complaineeId,
       remarks: remark,
       roleId: 1
     }
 
-    dispatch(updateComplaints({ id: complaintId, data: formData }))
+    dispatch(updateComplaints({ id: complaint?.complaintId, data: formData }))
     router.back()
   }
 
   useEffect(() => {
     console.log('Test console')
-    dispatch(getAllRemark(complaineeId))
-  }, [dispatch, complaineeId])
+    dispatch(getAllRemark(complaint?.complaineeId))
+  }, [dispatch, complaint?.complaineeId])
 
   useEffect(() => {
     singleComplaintRemarks && setAllRmarks(singleComplaintRemarks.remarks)
@@ -131,10 +116,10 @@ const SingleComplaint = () => {
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant='h6' sx={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
-          <PersonAddAltIcon /> &nbsp;{complaineeId == null ? 'Non Existing Client' : 'Existing Client'}
+          <PersonAddAltIcon /> &nbsp;{complaint?.complaineeId == null ? 'Non Existing Client' : 'Existing Client'}
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {complaineeId == null ? (
+          {complaint?.complaineeId == null ? (
             ''
           ) : (
             <Button
@@ -152,7 +137,7 @@ const SingleComplaint = () => {
             Complaint Code:
           </Typography>
           <Typography variant='h5' sx={{ marginRight: '10px' }}>
-            {complaintId}
+            {complaint?.complaintId}
           </Typography>
         </Box>
       </Box>
@@ -178,7 +163,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={customerName}
+                    defaultValue={complaint?.customerName}
                   />
                   {/* <Typography variant='h6'>Name : </Typography>&nbsp;
               <Typography variant='body1'> {customerName}</Typography> */}
@@ -199,7 +184,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={customerPhone}
+                    defaultValue={complaint?.customerPhone}
                   />
                 </Grid>
                 <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
@@ -218,7 +203,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={customerEmail}
+                    defaultValue={complaint?.customerEmail}
                   />
 
                   {/* <Typography variant='h6'>Email : </Typography>
@@ -240,7 +225,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={complaintServiceName}
+                    defaultValue={complaint?.complaintServiceName}
                   />
 
                   {/* <Typography variant='h6'>Service Name : </Typography>
@@ -262,7 +247,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={complaintType}
+                    defaultValue={complaint?.complaintType}
                   />
 
                   {/* <Typography variant='h6'>Complaint Type : </Typography>
@@ -284,7 +269,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={complaintAddress}
+                    defaultValue={complaint?.complaintAddress}
                   />
 
                   {/* <Typography variant='h6'>Address : </Typography>
@@ -306,7 +291,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={dateOfIncedent?.split('T')[0]}
+                    defaultValue={complaint?.dateOfIncedent?.split('T')[0]}
                   />
 
                   {/* <Typography variant='h6'>Date : </Typography>
@@ -328,7 +313,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={createdBy}
+                    defaultValue={complaint?.createdBy}
                   />
 
                   {/* <Typography variant='h6'>Date : </Typography>
@@ -350,7 +335,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={desireOutcome}
+                    defaultValue={complaint?.desireOutcome}
                   />
 
                   {/* <Typography variant='h6'>Date : </Typography>
@@ -375,7 +360,7 @@ const SingleComplaint = () => {
                     minRows={3}
                     label='Complaint Message'
                     sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-                    defaultValue={complaintMessage}
+                    defaultValue={complaint?.complaintMessage}
                   />
                 </Grid>
               </Grid>
@@ -384,7 +369,7 @@ const SingleComplaint = () => {
         </Box>
       )}
 
-      {complaineeId == null && (
+      {complaint?.complaineeId == null && (
         <Box fullWidth>
           <Card>
             <Paper elevation={0} style={{ padding: '20px' }}>
@@ -405,7 +390,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={customerName}
+                    defaultValue={complaint?.customerName}
                   />
                   {/* <Typography variant='h6'>Name : </Typography>&nbsp;
               <Typography variant='body1'> {customerName}</Typography> */}
@@ -426,7 +411,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={customerPhone}
+                    defaultValue={complaint?.customerPhone}
                   />
                 </Grid>
                 <Grid item xs={6} sx={{ display: 'flex', alignItems: 'center' }}>
@@ -445,7 +430,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={customerEmail}
+                    defaultValue={complaint?.customerEmail}
                   />
 
                   {/* <Typography variant='h6'>Email : </Typography>
@@ -467,7 +452,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={complaintServiceName}
+                    defaultValue={complaint?.complaintServiceName}
                   />
 
                   {/* <Typography variant='h6'>Service Name : </Typography>
@@ -489,7 +474,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={complaintType}
+                    defaultValue={complaint?.complaintType}
                   />
 
                   {/* <Typography variant='h6'>Complaint Type : </Typography>
@@ -511,7 +496,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={complaintAddress}
+                    defaultValue={complaint?.complaintAddress}
                   />
 
                   {/* <Typography variant='h6'>Address : </Typography>
@@ -533,7 +518,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={dateOfIncedent?.split('T')[0]}
+                    defaultValue={complaint?.dateOfIncedent?.split('T')[0]}
                   />
 
                   {/* <Typography variant='h6'>Date : </Typography>
@@ -555,7 +540,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={createdBy}
+                    defaultValue={complaint?.createdBy}
                   />
 
                   {/* <Typography variant='h6'>Date : </Typography>
@@ -577,7 +562,7 @@ const SingleComplaint = () => {
                     InputLabelProps={{
                       style: { color: '#fff' }
                     }}
-                    defaultValue={desireOutcome}
+                    defaultValue={complaint?.desireOutcome}
                   />
 
                   {/* <Typography variant='h6'>Date : </Typography>
@@ -602,7 +587,7 @@ const SingleComplaint = () => {
                     minRows={3}
                     label='Complaint Message'
                     sx={{ '& .MuiOutlinedInput-root': { alignItems: 'baseline' } }}
-                    defaultValue={complaintMessage}
+                    defaultValue={complaint?.complaintMessage}
                   />
                 </Grid>
               </Grid>
@@ -612,7 +597,7 @@ const SingleComplaint = () => {
       )}
 
       {/* ------------------------------Update Complaint-------------------------------------- */}
-      {complaineeId == null ? (
+      {complaint?.complaineeId == null ? (
         ''
       ) : (
         <Box fullWidth>
@@ -621,7 +606,7 @@ const SingleComplaint = () => {
               <Card sx={{ backgroundColor: '#28243D', height: '250px', overflow: 'auto', marginTop: '5px' }}>
                 <Card sx={{ backgroundColor: '#28243D' }}>
                   {allRmarks?.map(item =>
-                    item.remarksCreatedBy === 'Client' ? (
+                    item?.remarksCreatedBy === 'Client' ? (
                       <Grid container spacing={3} key={item.id}>
                         <Grid item xs={6}>
                           <Card sx={{ background: '#323152', marginLeft: '8px', marginBottom: '4px' }}>

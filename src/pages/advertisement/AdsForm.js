@@ -31,41 +31,27 @@ const AdsForm = ({ singleAds, handleClose }) => {
   const clientData = useSelector(state => state.clientData)
   const dispatch = useDispatch()
 
-  const {
-    advertiseImage,
-    advertisePage,
-    advertiseLocation,
-    businessName,
-    businessURL,
-    advertiseImageAltText,
-    phoneNumber,
-    startDate,
-    endDate,
-    clientId,
-    description,
-    isActive
-  } = singleAds
 
   const [editedAds, setEditedAds] = useState({
-    advertiseImage: advertiseImage,
-    advertisePage: advertisePage,
-    advertiseLocation: advertiseLocation,
-    businessName: businessName,
-    businessURL: businessURL,
-    advertiseImageAltText: advertiseImageAltText,
-    phoneNumber: phoneNumber,
-    startDate: startDate,
-    endDate: endDate,
-    clientId: clientId,
-    description: description,
-    isActive: isActive
+    advertiseImage: singleAds?.advertiseImage,
+    advertisePage: singleAds?.advertisePage,
+    advertiseLocation: singleAds?.advertiseLocation,
+    businessName: singleAds?.businessName,
+    businessURL: singleAds?.businessURL,
+    advertiseImageAltText: singleAds?.advertiseImageAltText,
+    phoneNumber: singleAds?.phoneNumber,
+    startDate: singleAds?.startDate,
+    endDate: singleAds?.endDate,
+    clientId: singleAds?.clientId,
+    description: singleAds?.description,
+    isActive: singleAds?.isActive
   })
 
   const findUserName = id => {
-    const user = clientData.data.find(item => item.clientId == id)
+    const user = clientData.data.find(item => item?.clientId == id)
 
     if (user) {
-      return user.clientFirstName + ' ' + user.clientLastName
+      return user?.clientFirstName + ' ' + user?.clientLastName
     } else {
       return 'N/A'
     }
@@ -80,7 +66,7 @@ const AdsForm = ({ singleAds, handleClose }) => {
 
   const handleUpdate = e => {
     e.preventDefault()
-    dispatch(updateAdvertise({ id: singleAds.advertiseId, data: editedAds }))
+    dispatch(updateAdvertise({ id: singleAds?.advertiseId, data: editedAds }))
     handleClose()
   }
 
@@ -97,7 +83,7 @@ const AdsForm = ({ singleAds, handleClose }) => {
             <Form onSubmit={handleUpdate}>
               <ImageList sx={{ width: 500, height: 200 }} cols={3} rowHeight={164}>
                 <ImageListItem>
-                  <img src={editedAds.advertiseImage} alt={editedAds.advertiseImageAltText} loading='lazy' />
+                  <img src={editedAds?.advertiseImage} alt={editedAds?.advertiseImageAltText} loading='lazy' />
                 </ImageListItem>
               </ImageList>
               <Grid container spacing={7}>
@@ -156,7 +142,7 @@ const AdsForm = ({ singleAds, handleClose }) => {
                     fullWidth
                     label='Advertise Name'
                     placeholder='Enter Country Name'
-                    value={editedAds.advertiseImageAltText}
+                    value={editedAds?.advertiseImageAltText}
                     onChange={e => handleChange('advertiseImageAltText', e.target.value)}
                   />
                 </Grid>
