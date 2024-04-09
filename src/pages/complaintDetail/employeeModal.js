@@ -1,20 +1,28 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { FormControl, InputLabel, Select, MenuItem, Modal, Button, Box, Card } from '@mui/material'
+import { fetchClientData } from 'src/store/features/clientSlice';
 
 const EmployeeModal = ({ handleClose }) => {
-  const [employee, setEmployee] = useState('')
+
+  const dispatch = useDispatch();
+
+  const [employee, setEmployee] = useState('');
+
+  const clientData = useSelector(state => state.clientData.data);
+
+  console.log('...................cccccc',clientData);
+
+  useEffect(() => {
+    dispatch(fetchClientData())
+  }, [dispatch])
 
   return (
     <>
       <FormControl fullWidth>
         <InputLabel>Select Employee</InputLabel>
         <Select label='Select Employee' onChange={e => setEmployee(e.target.value)}>
-          <MenuItem value='1'>Sachin</MenuItem>
-
-          <MenuItem value='2'>Ritesh</MenuItem>
-          <MenuItem value='3'>Alam</MenuItem>
-          <MenuItem value='4'>Ram</MenuItem>
-          <MenuItem value='5'>Vishnu</MenuItem>
+          {(clientData || []).map((client)=>(<MenuItem value={client?.clientId}>{client?.clientFirstName} {client?.clientLastName}</MenuItem>))}
         </Select>
       </FormControl>
       <Box sx={{ display: 'flex', justifyContent: 'right', marginTop: '30px' }}>

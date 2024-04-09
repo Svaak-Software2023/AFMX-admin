@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { addMiniTvMedia, getAllMiniTvMedia, updateMiniTvMediaStatus } from '../ApiServices/miniTvService'
+import { addMiniTvMedia, getAllMiniTvMedia, updateMiniTvMediaStatus, deleteMiniTvMedia } from '../ApiServices/miniTvService'
 
 
 
@@ -33,6 +33,15 @@ export const updateMini_TvMedia_Status = createAsyncThunk("/mini-tv/updateAndDel
     }
 });
 
+export const delete_MiniTv_Media = createAsyncThunk("/delete/mini-tv/delete-media/", async (miniTvId) => {
+    try {
+        const response = await deleteMiniTvMedia(miniTvId);
+        return response
+    } catch (err) {
+        return err.response
+    }
+});
+
 
 const miniTvSlice = createSlice({
     name: "ProductAndCategory",
@@ -52,7 +61,11 @@ const miniTvSlice = createSlice({
         [addMini_Tv_Media.fulfilled]:(state,action)=>{
             state.message = action.payload?.message
             state.loading=false
-            state.miniTvList.push(action.payload?.miniTvResponse)
+            if(!state.miniTvList?.length){
+                state.miniTvList = [action.payload.miniTvResponse] 
+            } else {
+                state.miniTvList.push(action.payload.miniTvResponse)
+            }
             state.status = 'succeeded'
         },
         [addMini_Tv_Media.rejected]:(state,action)=>{

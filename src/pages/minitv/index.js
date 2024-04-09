@@ -25,7 +25,7 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 // ** Third Party Imports
 import { useDispatch, useSelector } from 'react-redux'
-import {addMini_Tv_Media,getAll_MiniTv_Media,updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice'
+import {addMini_Tv_Media,getAll_MiniTv_Media,updateMini_TvMedia_Status, delete_MiniTv_Media } from 'src/store/features/miniTvSlice'
 
 import DataTable from 'react-data-table-component'
 import Magnify from 'mdi-material-ui/Magnify'
@@ -101,7 +101,10 @@ const MiniTv = () => {
     setOpen(true)
   };
 
-  const handleClose = () => setOpen(false)
+  const handleClose = () => {
+    setOpen(false);
+    dispatch(getAll_MiniTv_Media());
+  }
 
   const handleAddForm = () => {
     setFormVisible(prev => !prev)
@@ -144,7 +147,7 @@ const MiniTv = () => {
         <>
         <VisibilitySharpIcon onClick={() => router.push(`/minitv/${row.miniTvId}`)} titleAccess='view details' style={{cursor:"pointer"}} /> &nbsp; &nbsp;
         <StyledUpdateButton onClick={() => handleOpen(row.miniTvId)} titleAccess='edit Mini Tv' /> &nbsp; &nbsp;
-        <DeleteIcon titleAccess='delete Mini Tv' style={{cursor:"pointer"}} />
+        <DeleteIcon onClick={()=> handleDelete(row.miniTvId)} titleAccess='delete Mini Tv' style={{cursor:"pointer"}} />
         </>
       )
     }
@@ -207,14 +210,12 @@ const MiniTv = () => {
     }
 
   // ----------------Delete ----------
-  const handleDelete = async id => {
-    // try {
-    //   const data = await data?.find(i => i.countryId === id)
-    //   dispatch(updateCountry({ id: id, data: { ...data, isActive: false } }))
-    //   dispatch(getCountry())
-    // } catch (error) {
-    //   throw error
-    // }
+  const handleDelete = (miniTvId) => {
+    try {
+      dispatch(delete_MiniTv_Media(miniTvId)).then((_)=>dispatch(getAll_MiniTv_Media())).then((_)=>showSuccessMessage('Mini tv media delete successfully'));
+    } catch (error) {
+      throw error
+    }
   }
 
  

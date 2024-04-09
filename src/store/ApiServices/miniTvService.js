@@ -59,12 +59,23 @@ export const updateMiniTvMediaStatus = async ({miniTvId, formData}) => {
     }
   };
   form_Data = Object.fromEntries(form_Data.entries());
-    console.log('response--',form_Data);
+  //   console.log('response--',form_Data);
     const response = await axios.patch(`/mini-tv/updateAndDelete-media`, form_Data)
     return response.data
   } catch (error) {
     throw error
   }
-}
+};
+
+
+export const deleteMiniTvMedia = async (miniTvId) => {
+  try {
+    const reponse = await axios.delete(`/mini-tv/delete-media?miniTvId=${miniTvId}`);
+    const data = await reponse.data
+    return data
+  } catch (error) {
+    throw error
+  }
+};
 
 

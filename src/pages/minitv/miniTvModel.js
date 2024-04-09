@@ -13,14 +13,15 @@ import {
     MenuItem,
     Select
   } from '@mui/material'
-  import React, { useEffect, useState } from 'react'
+  import React, { useEffect, useState } from 'react';
+  import axios from 'axios';
   
   import { useDispatch, useSelector } from 'react-redux'
   import { update_Product} from 'src/store/features/productAndcategorySlice'
   import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import { useRouter } from 'next/router'
 import CloseIcon from '@mui/icons-material/Close';
-import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
+import { getAll_MiniTv_Media, updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
   
   const MiniTvModel = ({ handleClose, getid, showSuccessMessage }) => {
 
@@ -80,12 +81,29 @@ import { updateMini_TvMedia_Status } from 'src/store/features/miniTvSlice';
       }, [images]);
 
 
-    const onImageChange =(e) => {
+    const onImageChange = async(e) => {
         const miniTvMedia = [...e.target.files];
         const isVideo=['video/mp4'].includes(miniTvMedia[0]?.type)  ? true : false ;
         setImageURLs({...imageURLS,isVideo});
         setEditedMiniTv({...editedMiniTv,miniTvMedia})
         setImages([...e.target.files]);
+        let body = {miniTvId: getid,miniTvMedia};
+        let formData = new FormData();
+        for(let [key,value] of Object.entries(body)){
+          if(Array.isArray(value)){
+            for(const img of value){
+              formData.append(key, img);
+            }
+          } else {
+            formData.append(key, value);
+          }
+        };
+        let response;
+        try {
+        response = await axios.patch(`${process.env.NEXT_PUBLIC_baseURL}/mini-tv/updated-miniVideo`, formData);
+          dispatch(getAll_MiniTv_Media());
+        } catch (error) {
+        }
       };
 
 

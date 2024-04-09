@@ -29,6 +29,7 @@ import { useTheme } from '@mui/material/styles'
 import EmployeeModal from './employeeModal'
 import { getAllRemark } from 'src/store/features/remarkSlice'
 import moment from 'moment'
+import TurnLeftIcon from '@mui/icons-material/TurnLeft';
 
 const style = {
   position: 'absolute',
@@ -52,6 +53,10 @@ const SingleComplaint = () => {
   const timer = date => {
     return moment(date).format('llll')
   }
+
+  useEffect(() => {
+    dispatch(getComplaints())
+  }, [])
 
   const complaintData = useSelector(state => state.complaintsData.data)
   const remarkData = useSelector(state => state.remarkData.data)
@@ -103,9 +108,13 @@ const SingleComplaint = () => {
     router.back()
   }
 
+
+
   useEffect(() => {
-    console.log('Test console')
-    dispatch(getAllRemark(complaint?.complaineeId))
+    console.log('Test console');
+    if(complaint?.complaineeId){
+      dispatch(getAllRemark(complaint?.complaineeId))
+    }
   }, [dispatch, complaint?.complaineeId])
 
   useEffect(() => {
@@ -116,7 +125,9 @@ const SingleComplaint = () => {
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant='h6' sx={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
-          <PersonAddAltIcon /> &nbsp;{complaint?.complaineeId == null ? 'Non Existing Client' : 'Existing Client'}
+        <span style={{cursor:"pointer"}} onClick={() => router.back()} title="go back"><TurnLeftIcon /> &nbsp; </span>
+
+          <PersonAddAltIcon /> &nbsp;{complaint?.complaineeId == null ? 'Non Existing Client' : 'Existing Client'} 
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {complaint?.complaineeId == null ? (
@@ -607,7 +618,7 @@ const SingleComplaint = () => {
                 <Card sx={{ backgroundColor: '#28243D' }}>
                   {allRmarks?.map(item =>
                     item?.remarksCreatedBy === 'Client' ? (
-                      <Grid container spacing={3} key={item.id}>
+                      <Grid container spacing={3} key={item?.id}>
                         <Grid item xs={6}>
                           <Card sx={{ background: '#323152', marginLeft: '8px', marginBottom: '4px' }}>
                             <Typography variant='caption' sx={{ marginLeft: '10px', fontSize: '0.7rem' }}>
