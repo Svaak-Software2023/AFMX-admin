@@ -101,7 +101,7 @@ export const updateProduct = async (productId,form_Data) => {
   try {
     let formData = new FormData();
     for (const [key, val] of Object.entries(form_Data)){
-      if(key === 'productImage'){
+      if(Array.isArray(val)){
         for(const img of val){
           formData.append(key, img);
         }
@@ -109,9 +109,9 @@ export const updateProduct = async (productId,form_Data) => {
         formData.append(key, val);
       }
     };
-    formData = Object.fromEntries(formData.entries());
+    // formData = Object.fromEntries(formData.entries());
 
-    const response = await axios.put(`/update-product/${productId}`, formData)
+    const response = await axios.put(`/update-product?productId=${productId}`, formData)
     return response.data
   } catch (error) {
     throw error

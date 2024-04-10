@@ -74,7 +74,7 @@ import { useRouter } from 'next/router'
         if (images.length < 1) return;
         const newImageUrls = [];
         images.forEach((image) => newImageUrls.push(URL.createObjectURL(image)));
-        setImageURLs([...singleProduct?.productImage,...newImageUrls]);
+        setImageURLs([...newImageUrls]);
       }, [images]);
 
     const onImageChange =(e) => {

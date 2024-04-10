@@ -107,7 +107,7 @@ const MiniTv = () => {
   }
 
   const handleAddForm = () => {
-    setFormVisible(prev => !prev)
+    setFormVisible(prev => !prev);
   };
 
 
@@ -125,7 +125,7 @@ const MiniTv = () => {
     },
     {
       name: 'Url',
-      selector: row => row.mediaUrl,
+      selector: row => <a style={{color:"white"}} href={row.mediaUrl} target='_blank' title='go to this page'>{row.mediaUrl}</a>,
       sortable: true,
       grow:2,
       wrap: true
