@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { adminLoginData } from '../ApiServices/adminLoginService'
+import { adminLoginData } from '../ApiServices/adminLoginService';
 
 const initialState = {
   data: [],
@@ -11,14 +11,7 @@ const initialState = {
 export const adminSignIn = createAsyncThunk('form/loginData', async ({ formData, router }) => {
   try {
     const adminLogin = await adminLoginData(formData)
-    sessionStorage.setItem('adminData', JSON.stringify(adminLogin.adminResponse))
-
-    const getAdminData = sessionStorage.getItem('adminData')
-    if (getAdminData) {
-      router.push('/')
-    }
-
-    return adminLogin.adminResponse
+    return {adminResponse:adminLogin.adminResponse, router};
   } catch (error) {
     throw error
   }
@@ -35,8 +28,10 @@ export const adminSlice = createSlice({
       })
       .addCase(adminSignIn.fulfilled, (state, action) => {
         state.loading = false
-        state.data = action.payload
+        state.data = action.payload.adminResponse
         state.loggedIn = true
+        localStorage.setItem('adminData', JSON.stringify(action.payload.adminResponse))
+        action.payload.router.push('/');
       })
       .addCase(adminSignIn.rejected, (state, action) => {
         state.loading = false
